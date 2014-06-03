@@ -69,13 +69,14 @@ def einstein_tensor(ricci_t, ricci_s, metric):
 def readable_print(obj, index = []):
     if type(obj) != type(np.array([])):
         sympy.pprint(obj)
-    for n, entry in enumerate(obj):
-        if type(entry) != type(np.array([])):
-            if entry != 0:
-                print(str(index + [n])+" : ")
-                sympy.pprint(sympy.cancel(entry))
-        else:
-            readable_print(entry, index + [n])
+    else:
+        for n, entry in enumerate(obj):
+            if type(entry) != type(np.array([])):
+                if entry != 0:
+                    print(str(index + [n])+" : ")
+                    sympy.pprint(sympy.cancel(entry))
+            else:
+                readable_print(entry, index + [n])
 
 def raise_index(tensor, metric):
     inverse = np.array(sympy.Matrix(metric).inv())
@@ -88,12 +89,13 @@ def simplify_tensor(tensor):
 def print_in_latex(obj, index = []):
     if type(obj) != type(np.array([])):
         print_in_latex(obj)
-    for n, entry in enumerate(obj):
-        if type(entry) != type(np.array([])):
-            if entry != 0:
-                print(str(index + [n])+" : " + str(sympy.latex(entry)))
-        else:
-            print_in_latex(sympy.cancel(entry, index + [n]))
+    else:    
+        for n, entry in enumerate(obj):
+            if type(entry) != type(np.array([])):
+                if entry != 0:
+                    print(str(index + [n])+" : " + str(sympy.latex(entry)))
+            else:
+                print_in_latex(sympy.cancel(entry, index + [n]))
 
 if __name__ == "__main__":
     from pprint import pprint
