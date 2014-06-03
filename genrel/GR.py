@@ -66,8 +66,10 @@ def einstein_tensor(ricci_t, ricci_s, metric):
             einstein[alpha][beta] = sympy.cancel(ricci_t[alpha][beta] - 0.5*metric[alpha][beta]*ricci_s)
     return einstein
 
-def readable_print(tensor, index = []):
-    for n, entry in enumerate(tensor):
+def readable_print(obj, index = []):
+    if type(obj) != type(np.array([])):
+        sympy.pprint(obj)
+    for n, entry in enumerate(obj):
         if type(entry) != type(np.array([])):
             if entry != 0:
                 print(str(index + [n])+" : ")
@@ -75,6 +77,7 @@ def readable_print(tensor, index = []):
         else:
             readable_print(entry, index + [n])
 
+<<<<<<< HEAD
 def raise_index(tensor, metric):
     inverse = np.array(sympy.Matrix(metric).inv())
     raised_form = np.dot(inverse, tensor)
@@ -82,6 +85,17 @@ def raise_index(tensor, metric):
 
 def simplify_tensor(tensor):
     pass
+=======
+def print_in_latex(obj, index = []):
+    if type(obj) != type(np.array([])):
+        print_in_latex(obj)
+    for n, entry in enumerate(obj):
+        if type(entry) != type(np.array([])):
+            if entry != 0:
+                print(str(index + [n])+" : " + str(sympy.latex(entry)))
+        else:
+            print_in_latex(entry, index + [n])
+>>>>>>> FETCH_HEAD
 
 if __name__ == "__main__":
     from pprint import pprint
@@ -94,12 +108,22 @@ if __name__ == "__main__":
     a = sympy.Function('a')(t)
 
 
-
     metric = np.diag([-1, a**2/(1-k*r**2), a**2*r**2,a**2*r**2*sympy.sin(theta)**2])
     metric_key = [t, r, theta, phi]
+<<<<<<< HEAD
     chris = christoffel(metric, metric_key)
     reimann = reimann_tensor(chris, metric_key)
     ricci_t = ricci_tensor(reimann)
     ricci_s = ricci_scalar(ricci_t, metric)
     einstein = einstein_tensor(ricci_t, ricci_s, metric)
     readable_print(raise_index(einstein, metric))
+=======
+    c = christoffel(metric, metric_key)
+    print("Christoffel symbols calculated")
+    r = reimann_tensor(c, metric_key)
+    print("Reimann tensor calculated")
+    ri = ricci_tensor(r)
+    readable_print(ri)
+    s = ricci_scalar(ri, metric)
+    readable_print(s)
+>>>>>>> FETCH_HEAD
