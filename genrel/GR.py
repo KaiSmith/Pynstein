@@ -33,7 +33,7 @@ def reimann_tensor(chris_sym, metric_key):
                 for delta in range(4):
                     total = 0
                     total += sympy.diff(chris_sym[alpha][beta][delta], metric_key[gamma])
-                    total += sympy.diff(chris_sym[alpha][beta][gamma], metric_key[delta])
+                    total -= sympy.diff(chris_sym[alpha][beta][gamma], metric_key[delta])
                     for epsilon in range(4):
                         total += chris_sym[alpha][gamma][epsilon]*chris_sym[epsilon][beta][delta]
                         total -= chris_sym[alpha][delta][epsilon]*chris_sym[epsilon][beta][gamma]
