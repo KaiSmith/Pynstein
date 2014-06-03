@@ -24,5 +24,5 @@ def einstein_tensor(ricci_t, ricci_s, metric):
     pass
 
 if __name__ == "__main__":
-    metric = np([[-1, 0, 0, 0],[0, 1, 0, 0],[0, 0, 1, 0],[0, 0, 0, 1]])
+    metric = np.array([[-1, 0, 0, 0],[0, 1, 0, 0],[0, 0, 1, 0],[0, 0, 0, 1]])
     c = christoffel(metric)
