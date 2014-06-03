@@ -18,7 +18,7 @@ def christoffel(metric, metric_key):
                 total = 0
                 for delta in range(4):                    
                     total += sympy.Matrix(metric).inv()[alpha, delta] * (sympy.diff(metric[delta][beta], metric_key[gamma]) + 
-                            sympy.diff(metric[delta][gamma], metric_key[beta]) + sympy.diff(metric[beta][gamma], metric_key[delta]))
+                            sympy.diff(metric[delta][gamma], metric_key[beta]) - sympy.diff(metric[beta][gamma], metric_key[delta]))
                 symbols[alpha][beta][gamma] = sympy.cancel(1*total/2)
     return symbols
                     
