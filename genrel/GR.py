@@ -35,6 +35,17 @@ def einstein_tensor(ricci_t, ricci_s, metric):
     pass
 
 if __name__ == "__main__":
-    metric = np.array([[-1, 0, 0, 0],[0, 1, 0, 0],[0, 0, 1, 0],[0, 0, 0, 1]])
-    metric_key = []
-    c = christoffel(metric)
+    t = sympy.Symbol('t')
+    r = sympy.Symbol('r')
+    theta = sympy.Symbol('theta')
+    phi = sympy.Symbol('phi')
+    k = sympy.Symbol('k')
+    a = sympy.Function('a')(t)
+
+
+
+    metric = np.array([[-1, 0, 0, 0],[0, a**2/(1-k*r**2), 0, 0],[0, 0, a**2*r**2, 0],[0, 0, 0, a**2*r**2*sympy.sin(theta)**2]])
+    metric_key = [t, r, theta, phi]
+    c = christoffel(metric, metric_key)
+    from pprint import pprint
+    pprint(c)
