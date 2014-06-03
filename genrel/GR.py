@@ -12,12 +12,13 @@ def christoffel(metric, metric_key):
     #symols will be a rank 3 tensor. The first index will correspond to the upper
     #index and the next two will correspond to the lower indecies.
     symbols = np.empty((4, 4, 4), dtype = type(sympy.Symbol('Test')*1))
+    inverse = sympy.Matrix(metric).inv()
     for alpha in range(4):
         for beta in range(4):
             for gamma in range(4):
                 total = 0
                 for delta in range(4):                    
-                    total += sympy.Matrix(metric).inv()[alpha, delta] * (sympy.diff(metric[delta][beta], metric_key[gamma]) + 
+                    total += inverse[alpha, delta] * (sympy.diff(metric[delta][beta], metric_key[gamma]) + 
                             sympy.diff(metric[delta][gamma], metric_key[beta]) - sympy.diff(metric[beta][gamma], metric_key[delta]))
                 symbols[alpha][beta][gamma] = sympy.cancel(total/2)
     return symbols
