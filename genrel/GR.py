@@ -41,7 +41,14 @@ def reimann_tensor(chris_sym, metric_key):
 
 
 def ricci_tensor(reimann):
-    pass
+    ricci = np.empty((4, 4), dtype = type(sympy.Symbol('Test')*1))
+    for alpha in range(4):
+        for beta in range(4):
+            total = 0
+            for gamma in range(4):
+                total += reimann[gamma][alpha][gamma][beta]
+            ricci[alpha][beta] = sympy.cancel(total)
+    return ricci
 
 def ricci_scalar(ricci_t, metric):
     pass
@@ -67,3 +74,5 @@ if __name__ == "__main__":
     print("Christoffel symbols calculated")
     r = reimann_tensor(c, metric_key)
     print("Reimann tensor calculated")
+    ri = ricci_tensor(r)
+    print(ri)
