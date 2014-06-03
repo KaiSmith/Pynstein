@@ -62,8 +62,10 @@ def ricci_scalar(ricci_t, metric):
 def einstein_tensor(ricci_t, ricci_s, metric):
     pass
 
-def readable_print(tensor, index = []):
-    for n, entry in enumerate(tensor):
+def readable_print(obj, index = []):
+    if type(obj) != type(np.array([])):
+        sympy.pprint(obj)
+    for n, entry in enumerate(obj):
         if type(entry) != type(np.array([])):
             if entry != 0:
                 print(str(index + [n])+" : ")
@@ -71,8 +73,10 @@ def readable_print(tensor, index = []):
         else:
             readable_print(entry, index + [n])
 
-def print_in_latex(tensor, index = []):
-    for n, entry in enumerate(tensor):
+def print_in_latex(obj, index = []):
+    if type(obj) != type(np.array([])):
+        print_in_latex(obj)
+    for n, entry in enumerate(obj):
         if type(entry) != type(np.array([])):
             if entry != 0:
                 print(str(index + [n])+" : " + str(sympy.latex(entry)))
@@ -97,9 +101,6 @@ if __name__ == "__main__":
     r = reimann_tensor(c, metric_key)
     print("Reimann tensor calculated")
     ri = ricci_tensor(r)
-<<<<<<< HEAD
-    s = ricci_scalar(ri, metric)
-    print(s)
-=======
     readable_print(ri)
->>>>>>> FETCH_HEAD
+    s = ricci_scalar(ri, metric)
+    readable_print(s)
