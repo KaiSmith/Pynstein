@@ -66,6 +66,14 @@ def readable_print(tensor, index = []):
         else:
             readable_print(entry, index + [n])
 
+def print_in_latex(tensor, index = []):
+    for n, entry in enumerate(tensor):
+        if type(entry) != type(np.array([])):
+            if entry != 0:
+                print(str(index + [n])+" : " + str(sympy.latex(entry)))
+        else:
+            print_in_latex(entry, index + [n])
+
 if __name__ == "__main__":
     from pprint import pprint
     
@@ -75,7 +83,6 @@ if __name__ == "__main__":
     phi = sympy.Symbol('phi')
     k = sympy.Symbol('k')
     a = sympy.Function('a')(t)
-
 
 
     metric = np.diag([-1, a**2/(1-k*r**2), a**2*r**2,a**2*r**2*sympy.sin(theta)**2])
