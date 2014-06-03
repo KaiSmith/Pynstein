@@ -52,7 +52,12 @@ def ricci_tensor(reimann):
     return ricci
 
 def ricci_scalar(ricci_t, metric):
-    pass
+    scalar = 0
+    inverse = sympy.Matrix(metric).inv()
+    for alpha in range(4):
+        for beta in range(4):
+            scalar += inverse[alpha, beta] * ricci_t[alpha][beta]
+    return scalar
 
 def einstein_tensor(ricci_t, ricci_s, metric):
     pass
@@ -76,4 +81,5 @@ if __name__ == "__main__":
     r = reimann_tensor(c, metric_key)
     print("Reimann tensor calculated")
     ri = ricci_tensor(r)
-    print(ri)
+    s = ricci_scalar(ri, metric)
+    print(s)
