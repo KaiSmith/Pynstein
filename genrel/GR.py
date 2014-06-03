@@ -8,8 +8,19 @@ Case Western Reserve university
 import numpy as np
 import sympy
 
-def christoffel(metric):
-    pass
+def christoffel(metric, metric_key):
+    #symols will be a rank 3 tensor. The first index will correspond to the upper
+    #index and the next two will correspond to the lower indecies.
+    symbols = [[[],[],[],[]],[[],[],[],[]],[[],[],[],[]],[[],[],[],[]]]
+    for alpha in range(4):
+        for beta in range(4):
+            for gamma in range(4):
+                total = 0
+                for delta in range(4):
+                    total += 0.5*np.matrix(metric).I[alpha][delta] * (sympy.diff(metric[delta][beta], metric_key[gamma]) + 
+                            sympy.diff(metric[delta][gamma], metric_key[beta]) + sympy.diff(metric[beta][gamma], metric_key[delta]))
+                symbols[alpha][beta][gamma] = total
+                    
 
 def reimann_tensor(chris):
     pass
@@ -25,4 +36,5 @@ def einstein_tensor(ricci_t, ricci_s, metric):
 
 if __name__ == "__main__":
     metric = np.array([[-1, 0, 0, 0],[0, 1, 0, 0],[0, 0, 1, 0],[0, 0, 0, 1]])
+    metric_key = []
     c = christoffel(metric)
