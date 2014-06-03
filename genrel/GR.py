@@ -62,6 +62,15 @@ def ricci_scalar(ricci_t, metric):
 def einstein_tensor(ricci_t, ricci_s, metric):
     pass
 
+def readable_print(tensor, index = []):
+    for n, entry in enumerate(tensor):
+        if type(entry) != type(np.array([])):
+            if entry != 0:
+                print(str(index + [n])+" : ")
+                sympy.pprint(entry)
+        else:
+            readable_print(entry, index + [n])
+
 if __name__ == "__main__":
     from pprint import pprint
     
@@ -81,5 +90,9 @@ if __name__ == "__main__":
     r = reimann_tensor(c, metric_key)
     print("Reimann tensor calculated")
     ri = ricci_tensor(r)
+<<<<<<< HEAD
     s = ricci_scalar(ri, metric)
     print(s)
+=======
+    readable_print(ri)
+>>>>>>> FETCH_HEAD
