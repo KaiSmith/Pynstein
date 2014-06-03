@@ -57,10 +57,14 @@ def ricci_scalar(ricci_t, metric):
     for alpha in range(4):
         for beta in range(4):
             scalar += inverse[alpha, beta] * ricci_t[alpha][beta]
-    return scalar
+    return sympy.cancel(scalar)
 
 def einstein_tensor(ricci_t, ricci_s, metric):
-    pass
+    einstein = np.empty((4, 4), dtype = type(sympy.Symbol('Test')*1))
+    for alpha in range(4):
+        for beta in range(4):
+            einstein[alpha][beta] = sympy.cancel(ricci_t[alpha][beta] - 0.5*metric[alpha][beta]*ricci_s)
+    return einstein
 
 def readable_print(tensor, index = []):
     for n, entry in enumerate(tensor):
@@ -70,6 +74,14 @@ def readable_print(tensor, index = []):
                 sympy.pprint(entry)
         else:
             readable_print(entry, index + [n])
+
+def raise_index(tensor, metric):
+    inverse = np.array(sympy.Matrix(metric).inv())
+    raised_form = np.dot(inverse, tensor)
+    return raised_form
+
+def simplify_tensor(tensor):
+    pass
 
 if __name__ == "__main__":
     from pprint import pprint
@@ -85,14 +97,9 @@ if __name__ == "__main__":
 
     metric = np.diag([-1, a**2/(1-k*r**2), a**2*r**2,a**2*r**2*sympy.sin(theta)**2])
     metric_key = [t, r, theta, phi]
-    c = christoffel(metric, metric_key)
-    print("Christoffel symbols calculated")
-    r = reimann_tensor(c, metric_key)
-    print("Reimann tensor calculated")
-    ri = ricci_tensor(r)
-<<<<<<< HEAD
-    s = ricci_scalar(ri, metric)
-    print(s)
-=======
-    readable_print(ri)
->>>>>>> FETCH_HEAD
+    chris = christoffel(metric, metric_key)
+    reimann = reimann_tensor(chris, metric_key)
+    ricci_t = ricci_tensor(reimann)
+    ricci_s = ricci_scalar(ricci_t, metric)
+    einstein = einstein_tensor(ricci_t, ricci_s, metric)
+    readable_print(raise_index(einstein, metric))
