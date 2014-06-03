@@ -73,7 +73,7 @@ def readable_print(obj, index = []):
         if type(entry) != type(np.array([])):
             if entry != 0:
                 print(str(index + [n])+" : ")
-                sympy.pprint(entry)
+                sympy.pprint(sympy.cancel(entry))
         else:
             readable_print(entry, index + [n])
 
@@ -93,7 +93,7 @@ def print_in_latex(obj, index = []):
             if entry != 0:
                 print(str(index + [n])+" : " + str(sympy.latex(entry)))
         else:
-            print_in_latex(entry, index + [n])
+            print_in_latex(sympy.cancel(entry, index + [n]))
 
 if __name__ == "__main__":
     from pprint import pprint
