@@ -141,6 +141,9 @@ if __name__ == "__main__":
     phi = sp.Symbol('phi')
     k = sp.Symbol('k')
     a = sp.Function('a')(t)
+    b = sp.Function('b')(t)
+    c = sp.Function('c')(t)
+
 
     w = sp.Symbol('w')
     rho = sp.Symbol('rho')
@@ -148,6 +151,14 @@ if __name__ == "__main__":
 
     metric = np.diag([-1, a**2/(1-k*r**2), a**2*r**2,a**2*r**2*sp.sin(theta)**2])
     metric_key = [t, r, theta, phi] #In order, which variable each row/column of the metric represents
+    
+    '''x = sp.Symbol('x')
+    y = sp.Symbol('y')
+    z = sp.Symbol('z')
 
+    metric = np.diag([-1, a**2, b**2, c**2])
+    metric_key = [t, x, y, z] #In order, which variable each row/column of the metric represents
+    '''
     einstein = raise_one_index(einstein_tensor_from_scratch(metric, metric_key), metric)
-    rprint(equations(einstein, np.diag([-rho, p, p, p])))
+    print(christoffel_symbols(metric, metric_key))
+    rprint(np.array(equations(einstein, np.diag([-rho, p, p, p]))))
