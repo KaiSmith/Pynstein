@@ -73,6 +73,7 @@ def einstein_tensor(ricci_t, ricci_s, metric):
             einstein[alpha][beta] = sp.cancel(ricci_t[alpha][beta] - 0.5*metric[alpha][beta]*ricci_s)
     return einstein
 
+#Runs through all parts of the program to give the einstein tensor given only the metric and its key
 def einstein_tensor_from_scratch(metric, metric_key):
     c_syms = christoffel_symbols(metric, metric_key)
     reimann_t = reimann_tensor(c_syms, metric_key)
@@ -84,6 +85,10 @@ def einstein_tensor_from_scratch(metric, metric_key):
 def tensor(rank):
     shape = [4 for i in range(rank)]
     return np.empty(shape, dtype = type(sp.Symbol('')))
+
+#Returns the rank of the tensor given, passed in as a numpy array
+def rank_of(np_tensor):
+    return len(np_tensor.shape)
 
 #returns the inverse of metric
 def inverse_metric(metric):
@@ -119,6 +124,16 @@ def print_in_latex(obj, index = []):
             else:
                 print_in_latex(sp.cancel(entry, index + [n]))
 
+#returns expressions, which when set equal to zero give the Einstein equations
+def equations(einstein_tensor, stress_energy_tensor):
+    einstein_equations = []
+    for alpha in range(4):
+        for beta in range(4):
+            eq = sp.cancel(einstein_tensor[alpha][beta]-8*sp.pi*sp.Symbol('G')*stress_energy_tensor[alpha][beta])
+            if eq != 0 and eq not in einstein_equations:
+                einstein_equations.append(eq)
+    return einstein_equations
+
 if __name__ == "__main__":
     t = sp.Symbol('t')
     r = sp.Symbol('r')
@@ -127,7 +142,12 @@ if __name__ == "__main__":
     k = sp.Symbol('k')
     a = sp.Function('a')(t)
 
-    metric = np.diag([-1, a**2/(1-k*r**2), a**2*r**2,a**2*r**2*sp.sin(theta)**2])
-    metric_key = [t, r, theta, phi]
+    w = sp.Symbol('w')
+    rho = sp.Symbol('rho')
+    p = w*rho
 
-    rprint(raise_one_index(einstein_tensor_from_scratch(metric, metric_key), metric))
+    metric = np.diag([-1, a**2/(1-k*r**2), a**2*r**2,a**2*r**2*sp.sin(theta)**2])
+    metric_key = [t, r, theta, phi] #In order, which variable each row/column of the metric represents
+
+    einstein = raise_one_index(einstein_tensor_from_scratch(metric, metric_key), metric)
+    rprint(equations(einstein, np.diag([-rho, p, p, p])))
