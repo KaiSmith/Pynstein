@@ -73,7 +73,7 @@ def einstein_tensor(ricci_t, ricci_s, metric):
             einstein[alpha][beta] = sp.cancel(ricci_t[alpha][beta] - 0.5*metric[alpha][beta]*ricci_s)
     return einstein
 
-#Runs through all parts of the program to give the einstein tensor given only the metric and its key
+#runs through all parts of the program to find the Einstein tensor given only the metric and its key
 def einstein_tensor_from_scratch(metric, metric_key):
     c_syms = christoffel_symbols(metric, metric_key)
     reimann_t = reimann_tensor(c_syms, metric_key)
@@ -81,14 +81,24 @@ def einstein_tensor_from_scratch(metric, metric_key):
     ricci_s = ricci_scalar(ricci_t, metric)
     return einstein_tensor(ricci_t, ricci_s, metric)
 
+#returns expressions which, when set equal to zero, give the Einstein equations
+def einstein_equations(einstein_tensor, stress_energy_tensor):
+    einstein_equations = []
+    for alpha in range(4):
+        for beta in range(4):
+            eq = sp.simplify(einstein_tensor[alpha][beta] - 8*sp.pi*sp.Symbol('G')*stress_energy_tensor[alpha][beta])
+            if eq != 0 and eq not in einstein_equations:
+                einstein_equations.append(eq)
+    return einstein_equations
+
 #returns a 4 x 4 x ... x 4 array of sympy symbols which represent a tensor
 def tensor(rank):
     shape = [4 for i in range(rank)]
     return np.empty(shape, dtype = type(sp.Symbol('')))
 
-#Returns the rank of the tensor given, passed in as a numpy array
-def rank_of(np_tensor):
-    return len(np_tensor.shape)
+#returns the rank of the tensor, passed in as a numpy array
+def rank(tensor):
+    return len(tensor.shape)
 
 #returns the inverse of metric
 def inverse_metric(metric):
@@ -103,36 +113,27 @@ def raise_one_index(tensor, metric):
 def rprint(obj, position = []):
     if type(obj) != type(np.array([])):
         if obj != 0:
-            sp.pprint(obj)
+            sp.pprint(sp.simplify(obj))
     else:
         for n, entry in enumerate(obj):
             if type(entry) != type(np.array([])) and entry != 0:
                     print(str(position + [n]) + ": ")
-                    sp.pprint(sp.cancel(entry))
+                    sp.pprint(sp.simplify(entry))
             else:
                 rprint(entry, position + [n])
 
 #prints a tensor (or a sympy scalar) in LaTeX
-def print_in_latex(obj, index = []):
+def lprint(obj, position = []):
     if type(obj) != type(np.array([])):
-        print_in_latex(obj)
-    else:    
+        if obj != 0:
+            print(sp.latex(sp.simplify(entry)))
+    else:
         for n, entry in enumerate(obj):
-            if type(entry) != type(np.array([])):
-                if entry != 0:
-                    print(str(index + [n])+" : " + str(sp.latex(entry)))
+            if type(entry) != type(np.array([])) and entry != 0:
+                    print(str(position + [n]) + ": ")
+                    print(sp.latex(sp.simplify(entry)))
             else:
-                print_in_latex(sp.cancel(entry, index + [n]))
-
-#returns expressions, which when set equal to zero give the Einstein equations
-def equations(einstein_tensor, stress_energy_tensor):
-    einstein_equations = []
-    for alpha in range(4):
-        for beta in range(4):
-            eq = sp.cancel(einstein_tensor[alpha][beta]-8*sp.pi*sp.Symbol('G')*stress_energy_tensor[alpha][beta])
-            if eq != 0 and eq not in einstein_equations:
-                einstein_equations.append(eq)
-    return einstein_equations
+                lprint(entry, position + [n])
 
 if __name__ == "__main__":
     t = sp.Symbol('t')
@@ -150,4 +151,4 @@ if __name__ == "__main__":
     metric_key = [t, r, theta, phi] #In order, which variable each row/column of the metric represents
 
     einstein = raise_one_index(einstein_tensor_from_scratch(metric, metric_key), metric)
-    rprint(equations(einstein, np.diag([-rho, p, p, p])))
+    sp.pprint(einstein_equations(einstein, np.diag([-rho, p, p, p])))
