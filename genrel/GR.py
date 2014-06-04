@@ -6,86 +6,108 @@ Case Western Reserve university
 """
 
 import numpy as np
-import sympy
+import sympy as sp
 
-def christoffel(metric, metric_key):
-    #symols will be a rank 3 tensor. The first index will correspond to the upper
-    #index and the next two will correspond to the lower indecies.
-    symbols = np.empty((4, 4, 4), dtype = type(sympy.Symbol('Test')*1))
-    inverse = sympy.Matrix(metric).inv()
+#returns a rank 3 tensor that represents the symbols
+#first index corresponds to the upper index
+def christoffel_symbols(metric, metric_key):
+    symbols = tensor(3)
+    inverse = inverse_metric(metric)
     for alpha in range(4):
         for beta in range(4):
             for gamma in range(4):
                 total = 0
                 for delta in range(4):                    
-                    total += inverse[alpha, delta] * (sympy.diff(metric[delta][beta], metric_key[gamma]) + 
-                            sympy.diff(metric[delta][gamma], metric_key[beta]) - sympy.diff(metric[beta][gamma], metric_key[delta]))
-                symbols[alpha][beta][gamma] = sympy.cancel(total/2)
+                    total += inverse[alpha][delta] * (sp.diff(metric[delta][beta], metric_key[gamma]) + 
+                            sp.diff(metric[delta][gamma], metric_key[beta]) - sp.diff(metric[beta][gamma], metric_key[delta]))
+                symbols[alpha][beta][gamma] = sp.cancel(total/2)
     return symbols
-                    
 
+
+#returns the rank 4 Reimann curvature tensor
+#the first index corresponds to an upper index -- the rest are lower
 def reimann_tensor(chris_sym, metric_key):
-    #reimann tensor calculated with the first index as an upper index and all of the other ones as lower indecies
-    reimann = np.empty((4, 4, 4, 4), dtype = type(sympy.Symbol('Test')*1))
+    reimann = tensor(4)
     for alpha in range(4):
         for beta in range(4):
             for gamma in range(4):
                 for delta in range(4):
                     total = 0
-                    total += sympy.diff(chris_sym[alpha][beta][delta], metric_key[gamma])
-                    total -= sympy.diff(chris_sym[alpha][beta][gamma], metric_key[delta])
+                    total += sp.diff(chris_sym[alpha][beta][delta], metric_key[gamma])
+                    total -= sp.diff(chris_sym[alpha][beta][gamma], metric_key[delta])
                     for epsilon in range(4):
                         total += chris_sym[alpha][gamma][epsilon]*chris_sym[epsilon][beta][delta]
                         total -= chris_sym[alpha][delta][epsilon]*chris_sym[epsilon][beta][gamma]
-                    reimann[alpha][beta][gamma][delta] = sympy.cancel(total)
+                    reimann[alpha][beta][gamma][delta] = sp.cancel(total)
     return reimann
 
 
+#returns the rank 2 Ricci curvature tensor
+#both indicies are lower
 def ricci_tensor(reimann):
-    ricci = np.empty((4, 4), dtype = type(sympy.Symbol('Test')*1))
+    ricci = tensor(2)
     for alpha in range(4):
         for beta in range(4):
             total = 0
             for gamma in range(4):
                 total += reimann[gamma][alpha][gamma][beta]
-            ricci[alpha][beta] = sympy.cancel(total)
+            ricci[alpha][beta] = sp.cancel(total)
     return ricci
 
+#returns the Ricci scalar, a sympy symbol
 def ricci_scalar(ricci_t, metric):
     scalar = 0
-    inverse = sympy.Matrix(metric).inv()
+    inverse = inverse_metric(metric)
     for alpha in range(4):
         for beta in range(4):
-            scalar += inverse[alpha, beta] * ricci_t[alpha][beta]
-    return sympy.cancel(scalar)
+            scalar += inverse[alpha][beta] * ricci_t[alpha][beta]
+    return sp.cancel(scalar)
 
+#returns the rank 2 Einstein tensor
+#both indices are lower
+#think about whether you need to call raise_one_index before equating with a stress-energy tensor
 def einstein_tensor(ricci_t, ricci_s, metric):
-    einstein = np.empty((4, 4), dtype = type(sympy.Symbol('Test')*1))
+    einstein = tensor(2)
     for alpha in range(4):
         for beta in range(4):
-            einstein[alpha][beta] = sympy.cancel(ricci_t[alpha][beta] - 0.5*metric[alpha][beta]*ricci_s)
+            einstein[alpha][beta] = sp.cancel(ricci_t[alpha][beta] - 0.5*metric[alpha][beta]*ricci_s)
     return einstein
 
-def readable_print(obj, index = []):
+def einstein_tensor_from_scratch(metric, metric_key):
+    c_syms = christoffel_symbols(metric, metric_key)
+    reimann_t = reimann_tensor(c_syms, metric_key)
+    ricci_t = ricci_tensor(reimann_t)
+    ricci_s = ricci_scalar(ricci_t, metric)
+    return einstein_tensor(ricci_t, ricci_s, metric)
+
+#returns a 4 x 4 x ... x 4 array of sympy symbols which represent a tensor
+def tensor(rank):
+    shape = [4 for i in range(rank)]
+    return np.empty(shape, dtype = type(sp.Symbol('')))
+
+#returns the inverse of metric
+def inverse_metric(metric):
+    return np.array(sp.Matrix(metric).inv())
+
+#matrix-multiplies the inverse metric and the tensor
+#represents raising one index on a rank 2 tensor
+def raise_one_index(tensor, metric):
+    return np.dot(inverse_metric(metric), tensor)
+
+#prints a tensor (or a sympy scalar) in a readable form
+def rprint(obj, position = []):
     if type(obj) != type(np.array([])):
-        sympy.pprint(obj)
+        if obj != 0:
+            sp.pprint(obj)
     else:
         for n, entry in enumerate(obj):
-            if type(entry) != type(np.array([])):
-                if entry != 0:
-                    print(str(index + [n])+" : ")
-                    sympy.pprint(sympy.cancel(entry))
+            if type(entry) != type(np.array([])) and entry != 0:
+                    print(str(position + [n]) + ": ")
+                    sp.pprint(sp.cancel(entry))
             else:
-                readable_print(entry, index + [n])
+                rprint(entry, position + [n])
 
-def raise_index(tensor, metric):
-    inverse = np.array(sympy.Matrix(metric).inv())
-    raised_form = np.dot(inverse, tensor)
-    return raised_form
-
-def simplify_tensor(tensor):
-    pass
-
+#prints a tensor (or a sympy scalar) in LaTeX
 def print_in_latex(obj, index = []):
     if type(obj) != type(np.array([])):
         print_in_latex(obj)
@@ -93,27 +115,19 @@ def print_in_latex(obj, index = []):
         for n, entry in enumerate(obj):
             if type(entry) != type(np.array([])):
                 if entry != 0:
-                    print(str(index + [n])+" : " + str(sympy.latex(entry)))
+                    print(str(index + [n])+" : " + str(sp.latex(entry)))
             else:
-                print_in_latex(sympy.cancel(entry, index + [n]))
+                print_in_latex(sp.cancel(entry, index + [n]))
 
 if __name__ == "__main__":
-    from pprint import pprint
-    
-    t = sympy.Symbol('t')
-    r = sympy.Symbol('r')
-    theta = sympy.Symbol('theta')
-    phi = sympy.Symbol('phi')
-    k = sympy.Symbol('k')
-    a = sympy.Function('a')(t)
+    t = sp.Symbol('t')
+    r = sp.Symbol('r')
+    theta = sp.Symbol('theta')
+    phi = sp.Symbol('phi')
+    k = sp.Symbol('k')
+    a = sp.Function('a')(t)
 
-
-    metric = np.diag([-1, a**2/(1-k*r**2), a**2*r**2,a**2*r**2*sympy.sin(theta)**2])
+    metric = np.diag([-1, a**2/(1-k*r**2), a**2*r**2,a**2*r**2*sp.sin(theta)**2])
     metric_key = [t, r, theta, phi]
 
-    chris = christoffel(metric, metric_key)
-    reimann = reimann_tensor(chris, metric_key)
-    ricci_t = ricci_tensor(reimann)
-    ricci_s = ricci_scalar(ricci_t, metric)
-    einstein = einstein_tensor(ricci_t, ricci_s, metric)
-    readable_print(raise_index(einstein, metric))
+    rprint(raise_one_index(einstein_tensor_from_scratch(metric, metric_key), metric))
