@@ -18,8 +18,9 @@ def christoffel_symbols(metric, metric_key):
             for gamma in range(4):
                 total = 0
                 for delta in range(4):                    
-                    total += inverse[alpha][delta] * (sp.diff(metric[delta][beta], metric_key[gamma]) + 
-                            sp.diff(metric[delta][gamma], metric_key[beta]) - sp.diff(metric[beta][gamma], metric_key[delta]))
+                    total += inverse[alpha][delta] * (sp.diff(metric[delta][beta], metric_key[gamma])
+                        + sp.diff(metric[delta][gamma], metric_key[beta])
+                        - sp.diff(metric[beta][gamma], metric_key[delta]))
                 symbols[alpha][beta][gamma] = sp.cancel(total/2)
     return symbols
 
@@ -106,8 +107,13 @@ def inverse_metric(metric):
 
 #matrix-multiplies the inverse metric and the tensor
 #represents raising one index on a rank 2 tensor
-def raise_one_index(tensor, metric):
-    return np.dot(inverse_metric(metric), tensor)
+def raise_one_index(tensor, metric, index = 1):
+    return np.tensordot(inverse_metric(metric), tensor, index)
+
+#matrix-multiplies the  metric and the tensor
+#represents lowering one index on a rank 2 tensor
+def lower_one_index(tensor, metric, index = 1):
+    return np.tensordot(metric, tensor, index)
 
 #prints a tensor (or a sympy scalar) in a readable form
 def rprint(obj, position = []):
@@ -142,13 +148,31 @@ if __name__ == "__main__":
     phi = sp.Symbol('phi')
     k = sp.Symbol('k')
     a = sp.Function('a')(t)
+    b = sp.Function('b')(t)
+    c = sp.Function('c')(t)
+    M = sp.Symbol('M')
+    factor = 1 - (2*M)/r
 
     w = sp.Symbol('w')
     rho = sp.Symbol('rho')
     p = w*rho
 
-    metric = np.diag([-1, a**2/(1-k*r**2), a**2*r**2,a**2*r**2*sp.sin(theta)**2])
-    metric_key = [t, r, theta, phi] #In order, which variable each row/column of the metric represents
+    x = sp.Symbol('x')
+    y = sp.Symbol('y')
+    z = sp.Symbol('z')
+
+    #metric = np.diag([-factor, 1/factor, r**2, r**2*sp.sin(theta)**2])
+    #metric = np.diag([-1, a**2/(1-k*r**2), a**2*r**2,a**2*r**2*sp.sin(theta)**2])
+    metric = np.diag([-1, a**2, b**2, c**2])
+    metric_key = [t, x, y, z]
+    #metric_key = [t, r, theta, phi] #In order, which variable each row/column of the metric represents
 
     einstein = raise_one_index(einstein_tensor_from_scratch(metric, metric_key), metric)
-    sp.pprint(einstein_equations(einstein, np.diag([-rho, p, p, p])))
+    rprint(einstein)
+    #sp.pprint(einstein_equations(einstein, np.diag([-rho, p, p, p])))
+
+    #c_syms = christoffel_symbols(metric, metric_key)
+    #reimann_t = reimann_tensor(c_syms, metric_key)
+    #rprint(lower_one_index(reimann_t, metric))
+
+
