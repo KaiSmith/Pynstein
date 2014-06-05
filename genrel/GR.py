@@ -91,6 +91,21 @@ def einstein_equations(einstein_tensor, stress_energy_tensor):
                 einstein_equations.append(eq)
     return np.array(einstein_equations)
 
+def conservation_equations(metric, metric_key, stress_energy_tensor):
+    equations = []
+    cs = christoffel_symbols(metric, metric_key)
+    for u in range(4):
+        eq = 0
+        for v in range(4):
+            eq += sp.diff(stress_energy_tensor[u][v], metric_key[v])
+            for s in range(4):
+                eq += stress_energy_tensor[s][v]*cs[u][s][v]
+                eq += stress_energy_tensor[u][s]*cs[v][s][v]
+        eq = sp.simplify(eq)
+        if eq != 0 and eq not in equations:
+            equations.append(eq)
+    return np.array(equations)
+
 #returns a 4 x 4 x ... x 4 array of sympy symbols which represent a tensor
 def tensor(rank):
     shape = [4 for i in range(rank)]
@@ -146,19 +161,28 @@ if __name__ == "__main__":
     c = sp.Function('c')(t)
 
     w = sp.Symbol('w')
-    rho = sp.Symbol('rho')
+    rho = sp.Function('rho')(t)
     p = w*rho
 
-    frw_spherical_metric = np.diag([-1, a**2/(1-k*r**2), a**2*r**2,a**2*r**2*sp.sin(theta)**2])
-    frw_spherical_metric_key = [t, r, theta, phi] #In order, which variable each row/column of the metric represents
+    frw_metric = np.diag([-1, a**2/(1-k*r**2), a**2*r**2,a**2*r**2*sp.sin(theta)**2])
+    frw_metric_key = [t, r, theta, phi] #In order, which variable each row/column of the metric represents
  
+    rprint(conservation_equations(frw_metric, frw_metric_key, np.diag([-rho, p, p, p])))
+
+    '''
     x = sp.Symbol('x')
     y = sp.Symbol('y')
     z = sp.Symbol('z')
-    m = 1/(1-k/4*(x**2+y**2+z**2))
+    m = 1#/(1+k/4*(x**2+y**2+z**2))
 
-    frw_cartesian_metric = np.diag([-1, a**2*m, a**2*m, a**2*m])
-    frw_cartesian_metric_key = [t, x, y, z]
+    bc_metric = np.diag([-1, a**2*m, b**2*m, c**2*m])
+    bc_metric_key = [t, x, y, z]
+    
+    A = sp.Function('A')(r)
+    B = sp.Function('B')(r)
 
-    einstein = raise_one_index(einstein_tensor_from_scratch(frw_spherical_metric, frw_spherical_metric_key), frw_spherical_metric)
-    rprint(einstein_equations(einstein, np.diag([-rho, p, p, p])))
+    sc_metric = np.diag([B, A, r**2, r**2*sp.sin(theta)**2])
+    sc_metric_key = [t, r, theta, phi]
+
+    einstein = raise_one_index(einstein_tensor_from_scratch(bc_metric, bc_metric_key), bc_metric)
+    rprint(einstein_equations(einstein, np.diag([-rho, p, p, p])))'''
