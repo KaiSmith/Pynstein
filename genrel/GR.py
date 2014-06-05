@@ -1,7 +1,7 @@
 """
 genrel package for GR calculations
 David Clark, Kai Smith, David Cyncynates
-Case Western Reserve university
+Case Western Reserve University
 2014
 """
 
@@ -90,7 +90,7 @@ def einstein_equations(einstein_tensor, stress_energy_tensor):
             eq = sp.simplify(einstein_tensor[alpha][beta] - 8*sp.pi*sp.Symbol('G')*stress_energy_tensor[alpha][beta])
             if eq != 0 and eq not in einstein_equations:
                 einstein_equations.append(eq)
-    return einstein_equations
+    return np.array(einstein_equations)
 
 #returns a 4 x 4 x ... x 4 array of sympy symbols which represent a tensor
 def tensor(rank):
@@ -150,29 +150,21 @@ if __name__ == "__main__":
     a = sp.Function('a')(t)
     b = sp.Function('b')(t)
     c = sp.Function('c')(t)
-    M = sp.Symbol('M')
-    factor = 1 - (2*M)/r
 
     w = sp.Symbol('w')
     rho = sp.Symbol('rho')
     p = w*rho
 
+    frw_spherical_metric = np.diag([-1, a**2/(1-k*r**2), a**2*r**2,a**2*r**2*sp.sin(theta)**2])
+    frw_spherical_metric_key = [t, r, theta, phi] #In order, which variable each row/column of the metric represents
+ 
     x = sp.Symbol('x')
     y = sp.Symbol('y')
     z = sp.Symbol('z')
+    m = 1/(1-k/4*(x**2+y**2+z**2))
 
-    #metric = np.diag([-factor, 1/factor, r**2, r**2*sp.sin(theta)**2])
-    #metric = np.diag([-1, a**2/(1-k*r**2), a**2*r**2,a**2*r**2*sp.sin(theta)**2])
-    metric = np.diag([-1, a**2, b**2, c**2])
-    metric_key = [t, x, y, z]
-    #metric_key = [t, r, theta, phi] #In order, which variable each row/column of the metric represents
+    frw_cartesian_metric = np.diag([-1, a**2*m, a**2*m, a**2*m])
+    frw_cartesian_metric_key = [t, x, y, z]
 
-    einstein = raise_one_index(einstein_tensor_from_scratch(metric, metric_key), metric)
-    rprint(einstein)
-    #sp.pprint(einstein_equations(einstein, np.diag([-rho, p, p, p])))
-
-    #c_syms = christoffel_symbols(metric, metric_key)
-    #reimann_t = reimann_tensor(c_syms, metric_key)
-    #rprint(lower_one_index(reimann_t, metric))
-
-
+    einstein = raise_one_index(einstein_tensor_from_scratch(frw_spherical_metric, frw_spherical_metric_key), frw_spherical_metric)
+    rprint(einstein_equations(einstein, np.diag([-rho, p, p, p])))
