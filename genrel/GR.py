@@ -18,8 +18,9 @@ def christoffel_symbols(metric, metric_key):
             for gamma in range(4):
                 total = 0
                 for delta in range(4):                    
-                    total += inverse[alpha][delta] * (sp.diff(metric[delta][beta], metric_key[gamma]) + 
-                            sp.diff(metric[delta][gamma], metric_key[beta]) - sp.diff(metric[beta][gamma], metric_key[delta]))
+                    total += inverse[alpha][delta] * (sp.diff(metric[delta][beta], metric_key[gamma])
+                        + sp.diff(metric[delta][gamma], metric_key[beta])
+                        - sp.diff(metric[beta][gamma], metric_key[delta]))
                 symbols[alpha][beta][gamma] = sp.cancel(total/2)
     return symbols
 
@@ -121,8 +122,13 @@ def inverse_metric(metric):
 
 #matrix-multiplies the inverse metric and the tensor
 #represents raising one index on a rank 2 tensor
-def raise_one_index(tensor, metric):
-    return np.dot(inverse_metric(metric), tensor)
+def raise_one_index(tensor, metric, index = 1):
+    return np.tensordot(inverse_metric(metric), tensor, index)
+
+#matrix-multiplies the  metric and the tensor
+#represents lowering one index on a rank 2 tensor
+def lower_one_index(tensor, metric, index = 1):
+    return np.tensordot(metric, tensor, index)
 
 #prints a tensor (or a sympy scalar) in a readable form
 def rprint(obj, position = []):
