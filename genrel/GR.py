@@ -94,6 +94,7 @@ def einstein_equations(einstein_tensor, stress_energy_tensor):
 
 def conservation_equations(metric, metric_key, stress_energy_tensor):
     equations = []
+    stress_energy_tensor = raise_one_index(stress_energy_tensor, metric)
     cs = christoffel_symbols(metric, metric_key)
     for u in range(4):
         eq = 0
@@ -156,6 +157,48 @@ def lprint(obj, position = []):
             else:
                 lprint(entry, position + [n])
 
+#Prints a sympy expression or expressions in a Mathematica ready form
+def mprint(obj, position = []):
+    if type(obj) != type(np.array([])):
+        if obj != 0:
+            print(mathematicize(obj))
+    else:
+        for n, entry in enumerate(obj):
+            if type(entry) != type(np.array([])) and entry != 0:
+                    print(str(position + [n]) + ": ")
+                    print(mathematicize(entry))
+            else:
+                mprint(entry, position + [n])
+
+#Turns a single expression into Mathematica readable form
+def mathematicize(exp):
+    #NOTE: Program currently assumes that all functions are functions of time and all derivatives are with respect to time
+    exp = str(exp)
+    #Deals with exponentiation
+    exp = exp.replace('**', '^')
+    #Deals with derivatives
+    while exp.find('Derivative') != -1:
+        plevel = 1
+        clevel = 0
+        fname = ""
+        start = exp.find('Derivative')
+        i = start + 11
+        while plevel > 0:
+            if exp[i] == '(':
+                plevel += 1
+            elif exp[i] == ')':
+                plevel -= 1
+            elif exp[i] == ',':
+                clevel += 1
+            elif plevel == 1 and clevel == 0:
+                fname += exp[i]
+            i += 1
+        end = i
+        exp = exp[:start] + fname + '\''*clevel +'[t]' + exp[end:]
+    #Deals with giving function calls square brackets
+    exp = exp.replace('(t)', '[t]')
+    return exp
+
 if __name__ == "__main__":
     t = sp.Symbol('t')
     r = sp.Symbol('r')
@@ -168,14 +211,11 @@ if __name__ == "__main__":
 
     w = sp.Symbol('w')
     rho = sp.Function('rho')(t)
-    p = w*rho
+    p = sp.Function('p')(t)#w*rho
 
     frw_metric = np.diag([-1, a**2/(1-k*r**2), a**2*r**2,a**2*r**2*sp.sin(theta)**2])
     frw_metric_key = [t, r, theta, phi] #In order, which variable each row/column of the metric represents
  
-    rprint(conservation_equations(frw_metric, frw_metric_key, np.diag([-rho, p, p, p])))
-
-    '''
     x = sp.Symbol('x')
     y = sp.Symbol('y')
     z = sp.Symbol('z')
@@ -184,6 +224,8 @@ if __name__ == "__main__":
     bc_metric = np.diag([-1, a**2*m, b**2*m, c**2*m])
     bc_metric_key = [t, x, y, z]
     
+    rprint(conservation_equations(bc_metric, bc_metric_key, np.diag([-rho, p, p, p])))
+    
     A = sp.Function('A')(r)
     B = sp.Function('B')(r)
 
@@ -191,4 +233,4 @@ if __name__ == "__main__":
     sc_metric_key = [t, r, theta, phi]
 
     einstein = raise_one_index(einstein_tensor_from_scratch(bc_metric, bc_metric_key), bc_metric)
-    rprint(einstein_equations(einstein, np.diag([-rho, p, p, p])))'''
+    rprint(einstein_equations(einstein, np.diag([-rho, p, p, p])))
