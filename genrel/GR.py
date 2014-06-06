@@ -24,7 +24,6 @@ def christoffel_symbols(metric, metric_key):
                 symbols[alpha][beta][gamma] = sp.cancel(total/2)
     return symbols
 
-
 #returns the rank 4 Reimann curvature tensor
 #the first index corresponds to an upper index -- the rest are lower
 def reimann_tensor(chris_sym, metric_key):
@@ -41,7 +40,6 @@ def reimann_tensor(chris_sym, metric_key):
                         total -= chris_sym[alpha][delta][epsilon]*chris_sym[epsilon][beta][gamma]
                     reimann[alpha][beta][gamma][delta] = sp.cancel(total)
     return reimann
-
 
 #returns the rank 2 Ricci curvature tensor
 #both indicies are lower
@@ -200,10 +198,14 @@ def mathematicize(exp):
     return exp
 
 if __name__ == "__main__":
+    #Defines commonly used variable and functions
     t = sp.Symbol('t')
     r = sp.Symbol('r')
     theta = sp.Symbol('theta')
     phi = sp.Symbol('phi')
+    x = sp.Symbol('x')
+    y = sp.Symbol('y')
+    z = sp.Symbol('z')
     k = sp.Symbol('k')
     a = sp.Function('a')(t)
     b = sp.Function('b')(t)
@@ -213,24 +215,16 @@ if __name__ == "__main__":
     rho = sp.Function('rho')(t)
     p = sp.Function('p')(t)#w*rho
 
-    frw_metric = np.diag([-1, a**2/(1-k*r**2), a**2*r**2,a**2*r**2*sp.sin(theta)**2])
-    frw_metric_key = [t, r, theta, phi] #In order, which variable each row/column of the metric represents
- 
-    x = sp.Symbol('x')
-    y = sp.Symbol('y')
-    z = sp.Symbol('z')
-    m = 1#/(1+k/4*(x**2+y**2+z**2))
-
-    bc_metric = np.diag([-1, a**2*m, b**2*m, c**2*m])
-    bc_metric_key = [t, x, y, z]
-    
-    rprint(conservation_equations(bc_metric, bc_metric_key, np.diag([-rho, p, p, p])))
-    
-    A = sp.Function('A')(r)
-    B = sp.Function('B')(r)
-
-    sc_metric = np.diag([B, A, r**2, r**2*sp.sin(theta)**2])
-    sc_metric_key = [t, r, theta, phi]
+    #FRW metric
+    frw_metric, frw_metric_key = np.diag([-1, a**2/(1-k*r**2), a**2*r**2,a**2*r**2*sp.sin(theta)**2]), [t, r, theta, phi]
+    #Bianchi metric (currently flat, does not assume isotropy)
+    bc_metric, bc_metric_key = np.diag([-1, a**2, b**2, c**2]), [t, x, y, z]
+    #Generalized Schwartzchild metric
+    A, B = sp.Function('A')(r), sp.Function('B')(r)
+    sc_metric, sc_metric_ky = np.diag([B, A, r**2, r**2*sp.sin(theta)**2]), [t, r, theta, phi]
 
     einstein = raise_one_index(einstein_tensor_from_scratch(bc_metric, bc_metric_key), bc_metric)
+    print('Bianchi Spacetime Einstein Equations:')
     rprint(einstein_equations(einstein, np.diag([-rho, p, p, p])))
+    print('Conservation Equation for Bianchi Spacetime:')
+    rprint(conservation_equations(bc_metric, bc_metric_key, np.diag([-rho, p, p, p])))
