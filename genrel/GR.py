@@ -163,8 +163,8 @@ if __name__ == "__main__":
     z = sp.Symbol('z')
     m = 1/(1-k/4*(x**2+y**2+z**2))
 
-    frw_cartesian_metric = np.diag([-1, a**2*m, a**2*m, a**2*m])
+    frw_cartesian_metric = np.diag([-1, a**2, b**2, c**2])
     frw_cartesian_metric_key = [t, x, y, z]
 
-    einstein = raise_one_index(einstein_tensor_from_scratch(frw_spherical_metric, frw_spherical_metric_key), frw_spherical_metric)
-    rprint(einstein_equations(einstein, np.diag([-rho, p, p, p])))
+    einstein = raise_one_index(einstein_tensor_from_scratch(frw_cartesian_metric, frw_cartesian_metric_key), frw_cartesian_metric)
+    rprint(einstein)
