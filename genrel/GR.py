@@ -73,11 +73,15 @@ def einstein_tensor(ricci_t, ricci_s, metric):
     return einstein
 
 #runs through all parts of the program to find the Einstein tensor given only the metric and its key
-def einstein_tensor_from_scratch(metric, metric_key):
+def einstein_tensor_from_scratch(metric, metric_key, showprogress = False):
     c_syms = christoffel_symbols(metric, metric_key)
+    if showprogress: print("Christoffel Symbols calculated")
     reimann_t = reimann_tensor(c_syms, metric_key)
+    if showprogress: print("Reimann Tensor calculated")
     ricci_t = ricci_tensor(reimann_t)
+    if showprogress: print("Ricci Tensor calculated")
     ricci_s = ricci_scalar(ricci_t, metric)
+    if showprogress: print("Ricci Scalae calculated")
     return einstein_tensor(ricci_t, ricci_s, metric)
 
 #returns expressions which, when set equal to zero, give the Einstein equations
@@ -111,6 +115,11 @@ def tensor(rank):
     shape = [4 for i in range(rank)]
     return np.empty(shape, dtype = type(sp.Symbol('')))
 
+#returns a 4 x 4 x ... x 4 array of sympy symbols filled with zeros which represent a tensor
+def zerotensor(rank):
+    shape = [4 for i in range(rank)]
+    return np.zeros(shape, dtype = type(sp.Symbol('')))
+
 #returns the rank of the tensor, passed in as a numpy array
 def rank(tensor):
     return len(tensor.shape)
@@ -128,6 +137,11 @@ def raise_one_index(tensor, metric, index = 1):
 #represents lowering one index on a rank 2 tensor
 def lower_one_index(tensor, metric, index = 1):
     return np.tensordot(metric, tensor, index)
+
+def kronecker_delta(a, b):
+    if a == b:
+        return 1
+    return 0
 
 #prints a tensor (or a sympy scalar) in a readable form
 def rprint(obj, position = []):
@@ -223,8 +237,23 @@ if __name__ == "__main__":
     A, B = sp.Function('A')(r), sp.Function('B')(r)
     sc_metric, sc_metric_ky = np.diag([B, A, r**2, r**2*sp.sin(theta)**2]), [t, r, theta, phi]
 
-    einstein = raise_one_index(einstein_tensor_from_scratch(bc_metric, bc_metric_key), bc_metric)
-    print('Bianchi Spacetime Einstein Equations:')
+    frw_c_metric_key = [t, x, y, z]
+    frw_c_metric = zerotensor(2)
+    frw_c_metric[0][0] = -1
+    for i in range(1, 4):
+        for j in range(1, 4):
+            frw_c_metric[i][j] = a**2*(kronecker_delta(i, j) + 
+                k*((frw_c_metric_key[i]*frw_c_metric_key[j])/(1-k*(x**2+y**2+z**2))))
+    mprint(frw_c_metric)
+
+    #einstein = raise_one_index(einstein_tensor_from_scratch(bc_metric, bc_metric_key), bc_metric)
+    #print('Bianchi Spacetime Einstein Equations:')
+    #rprint(einstein_equations(einstein, np.diag([-rho, p, p, p])))
+    #print('Conservation Equation for Bianchi Spacetime:')
+    #rprint(conservation_equations(bc_metric, bc_metric_key, np.diag([-rho, p, p, p])))
+    
+    einstein = raise_one_index(einstein_tensor_from_scratch(frw_c_metric, bc_metric_key), frw_c_metric, showprogress = True)
+    print('FRW Spacetime Einstein Equations:')
     rprint(einstein_equations(einstein, np.diag([-rho, p, p, p])))
-    print('Conservation Equation for Bianchi Spacetime:')
-    rprint(conservation_equations(bc_metric, bc_metric_key, np.diag([-rho, p, p, p])))
+    print('FRW Equation for Bianchi Spacetime:')
+    rprint(conservation_equations(frw_c_metric, frw_c_metric_key, np.diag([-rho, p, p, p])))
