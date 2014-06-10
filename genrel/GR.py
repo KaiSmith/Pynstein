@@ -17,11 +17,11 @@ def christoffel_symbols(metric, metric_key):
         for beta in range(4):
             for gamma in range(4):
                 total = 0
-                for delta in range(4):                    
+                for delta in range(4):
                     total += inverse[alpha][delta] * (sp.diff(metric[delta][beta], metric_key[gamma])
                         + sp.diff(metric[delta][gamma], metric_key[beta])
                         - sp.diff(metric[beta][gamma], metric_key[delta]))
-                symbols[alpha][beta][gamma] = sp.cancel(total/2)
+                symbols[alpha][beta][gamma] = sp.simplify(total/2)
     return symbols
 
 #returns the rank 4 Reimann curvature tensor
@@ -244,16 +244,16 @@ if __name__ == "__main__":
         for j in range(1, 4):
             frw_c_metric[i][j] = a**2*(kronecker_delta(i, j) + 
                 k*((frw_c_metric_key[i]*frw_c_metric_key[j])/(1-k*(x**2+y**2+z**2))))
-    mprint(frw_c_metric)
-
-    #einstein = raise_one_index(einstein_tensor_from_scratch(bc_metric, bc_metric_key), bc_metric)
-    #print('Bianchi Spacetime Einstein Equations:')
-    #rprint(einstein_equations(einstein, np.diag([-rho, p, p, p])))
-    #print('Conservation Equation for Bianchi Spacetime:')
-    #rprint(conservation_equations(bc_metric, bc_metric_key, np.diag([-rho, p, p, p])))
+    #rprint(frw_c_metric)
     
-    einstein = raise_one_index(einstein_tensor_from_scratch(frw_c_metric, bc_metric_key), frw_c_metric, showprogress = True)
-    print('FRW Spacetime Einstein Equations:')
+    einstein = raise_one_index(einstein_tensor_from_scratch(bc_metric, bc_metric_key), bc_metric)
+    print('Bianchi Spacetime Einstein Equations:')
     rprint(einstein_equations(einstein, np.diag([-rho, p, p, p])))
-    print('FRW Equation for Bianchi Spacetime:')
-    rprint(conservation_equations(frw_c_metric, frw_c_metric_key, np.diag([-rho, p, p, p])))
+    print('Conservation Equation for Bianchi Spacetime:')
+    rprint(conservation_equations(bc_metric, bc_metric_key, np.diag([-rho, p, p, p])))
+    
+    #einstein = raise_one_index(einstein_tensor_from_scratch(frw_c_metric, bc_metric_key), frw_c_metric, showprogress = True)
+    #print('FRW Spacetime Einstein Equations:')
+    #rprint(einstein_equations(einstein, np.diag([-rho, p, p, p])))
+    #print('FRW Equation for Bianchi Spacetime:')
+    #rprint(conservation_equations(frw_c_metric, frw_c_metric_key, np.diag([-rho, p, p, p])))
