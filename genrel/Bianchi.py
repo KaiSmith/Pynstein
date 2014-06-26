@@ -19,7 +19,7 @@ I = A*B+A*C+B*C
 H = A+B+C
 
 V0 = 0.01 #Initial volume
-c = V0**2*(H**2*(1-(3*I/H**2)))
+c = V0**2*(H**2-3*I)
 
 def dVdt(v, t):
     return sqrt(3*I*(omega['m']*V0*v+omega['r']*V0**sp.Rational(4, 3)*v**sp.Rational(2, 3)+omega['v']*v**2)+c)
