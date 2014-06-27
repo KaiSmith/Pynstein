@@ -6,9 +6,9 @@ import scipy.integrate
 import matplotlib.pyplot as pplot
 
 #Initial directional Hubble constants
-A0 = 0.5
+A0 = 1.2
 B0 = 1.0
-C0 = 1.5
+C0 = 0.8
 
 #Initial directional scale factors
 a0 = 1.0
@@ -16,7 +16,7 @@ b0 = 1.0
 c0 = 1.0
 
 #Farctional energy-densities of the universe
-omega = {'m': 0.5, 'r': 0.5, 'v': 0}
+omega = {'m': 1.0/3.0, 'r': 1.0/3.0, 'v': 1.0/3.0}
 
 #Times at which to calculate functions
 t = np.linspace(0, 3, 100)
