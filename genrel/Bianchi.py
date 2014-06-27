@@ -1,57 +1,83 @@
 from GR import *
+from math import *
 import numpy as np
 import sympy as sp
-
 import scipy.integrate
 import matplotlib.pyplot as pplot
-import pylab
-from math import *
 
 #Initial directional Hubble constants
-A = 1.0 #0.98
-B = 1.1 #1.00
-C = -0.01 #1.02
+A0 = 0.5
+B0 = 1.0
+C0 = 1.5
 
-w = {'m': 0, 'r': sp.Rational(1, 3), 'v': -1}
+#Initial directional scale factors
+a0 = 1.0
+b0 = 1.0
+c0 = 1.0
+
+#Initial volume
+V0 = 1
+
+#Farctional energy-densities of the universe
 omega = {'m': 0.5, 'r': 0.5, 'v': 0}
 
-I = A*B+A*C+B*C
-H = A+B+C
+#Times at which to calculate functions
+t = np.linspace(0, 3, 100)
 
-V0 = 0.01 #Initial volume
-c = V0**2*(H**2-3*I)
+I0 = A0*B0+A0*C0+B0*C0
+H0 = A0+B0+C0
+c = V0**2*(H0**2-3*I0)
 
-def dVdt(v, t):
-    return sqrt(3*I*(omega['m']*V0*v+omega['r']*V0**sp.Rational(4, 3)*v**sp.Rational(2, 3)+omega['v']*v**2)+c)
+def dVdt(V, t0):
+    return sqrt(3*I0*(omega['m']*V0*V+omega['r']*V0**sp.Rational(4, 3)*V**sp.Rational(2, 3)+omega['v']*V**2)+c)
 
-times = np.linspace(0, 2, 100)
-V = scipy.integrate.odeint(dVdt, V0, times)
-Vdict = dict(zip(times, list(V.T[0])))
+def make_dHdt(V):
+	def dHdt(H, t0):
+	    return (I0/2*(omega['m']*V0+sp.Rational(2, 3)*omega['r']*V0**sp.Rational(4, 3)*V[t0]**sp.Rational(-1, 3)+2*omega['v']*V[t0])
+	    	-H*dVdt(V[t0],t0))/V[t0]
+	return dHdt
 
-def dHdt(h, t):
-    return (I/2*(omega['m']*V0+sp.Rational(2, 3)*omega['r']*V0**sp.Rational(4, 3)*Vdict[t]**sp.Rational(-1, 3)+2*omega['v']*Vdict[t])
-            -h*dVdt(Vdict[t],t))/Vdict[t]
+def make_dSdt(H):
+	def dSdt(S, t0):
+	    return H[t0] * S
+	return dSdt
 
-def euler(dfdt, initial_condition, times):
-    vals = [initial_condition]
-    for n,t in enumerate(times[:-1]):
-        vals.append(vals[-1]+dfdt(vals[-1], t)*(times[n+1]-t))
+def hubble_parameters():
+	V = dict(zip(t, scipy.integrate.odeint(dVdt, V0, t)))
+	dHdt = make_dHdt(V)
+	return euler(dHdt, A0, t), euler(dHdt, B0, t), euler(dHdt, C0, t)
+
+def scale_factors():
+	Ha, Hb, Hc = hubble_parameters()
+	Ha = dict(zip(t, Ha))
+	Hb = dict(zip(t, Hb))
+	Hc = dict(zip(t, Hc))
+	dadt = make_dSdt(Ha)
+	dbdt = make_dSdt(Hb)
+	dcdt = make_dSdt(Hc)
+	return euler(dadt, a0, t), euler(dbdt, b0, t), euler(dcdt, c0, t)
+
+def plot_hubble_parameters():
+	Ha, Hb, Hc = hubble_parameters()
+	pplot.scatter(t, np.float64(Ha), c = 'r')
+	pplot.scatter(t, np.float64(Hb), c = 'g')
+	pplot.scatter(t, np.float64(Hc), c = 'b')
+	pplot.title('Hubble Parameters')
+	pplot.show()
+
+def plot_scale_factors():
+	a, b, c = scale_factors()
+	pplot.scatter(t, np.float64(a), c = 'r')
+	pplot.scatter(t, np.float64(b), c = 'g')
+	pplot.scatter(t, np.float64(c), c = 'b')
+	pplot.title('Scale Factors')
+	pplot.show()
+
+def euler(dfdt, f0, t):
+    vals = [f0]
+    for n,t0 in enumerate(t[:-1]):
+        vals.append(vals[-1]+dfdt(vals[-1], t0)*(t[n+1]-t0))
     return vals
 
-Ha = np.float64(euler(dHdt, A, times))
-#print(Ha)
-
-Hb = np.float64(euler(dHdt, B, times))
-#print(Hb)
-
-Hc = np.float64(euler(dHdt, C, times))
-#print(Hc)
-
-pplot.scatter(times, Hb, c = 'b')
-pplot.scatter(times, Ha, c = 'r')
-pplot.scatter(times, Hc, c = 'g')
-
-#pplot.scatter(times, V)
-#pplot.scatter(times, [((t+.5)/.5)**(3.0/2) for t in times])
-#print(list(V.T[0])[-1])
-pplot.show()
+plot_hubble_parameters()
+plot_scale_factors()
