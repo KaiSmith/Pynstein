@@ -8,13 +8,12 @@ from GR import *
 from math import *
 import numpy as np
 import sympy as sp
-import scipy.integrate
 import matplotlib.pyplot as pplot
 
 #Initial directional Hubble constants
-A0 = 1.2
+A0 = 0.5
 B0 = 1.0
-C0 = 0.8
+C0 = 1.5
 
 #Initial directional scale factors
 a0 = 1.0
@@ -22,66 +21,87 @@ b0 = 1.0
 c0 = 1.0
 
 #Farctional energy-densities of the universe
-omega = {'m': 1.0/3.0, 'r': 1.0/3.0, 'v': 1.0/3.0}
+omega = {'m': 0, 'r': 1.0, 'v': 0}
 
 #Times at which to calculate functions
-t = np.linspace(0, 3, 100)
+start = 0
+stop = 3
+step = 0.1
 
 I0 = A0*B0+A0*C0+B0*C0
 H0 = A0+B0+C0
 V0 = a0*b0*c0
 c = V0**2*(H0**2-3*I0)
+t = np.linspace(start, stop, (stop-start)/step+1)
 
-def dVdt(V, t0):
+def dVdt(V, t):
     return sqrt(3*I0*(omega['m']*V0*V+omega['r']*V0**sp.Rational(4, 3)*V**sp.Rational(2, 3)+omega['v']*V**2)+c)
 
 def make_dHdt(V):
-	def dHdt(H, t0):
-	    return (I0/2*(omega['m']*V0+sp.Rational(2, 3)*omega['r']*V0**sp.Rational(4, 3)*V[t0]**sp.Rational(-1, 3)+2*omega['v']*V[t0])
-	    	-H*dVdt(V[t0],t0))/V[t0]
+	def dHdt(H, t):
+		V_t = get_value(V, t)
+		return (I0/2*(omega['m']*V0+sp.Rational(2, 3)*omega['r']*V0**sp.Rational(4, 3)*V_t**sp.Rational(-1, 3)+2*omega['v']*V_t)
+			-H*dVdt(V_t,t))/V_t
 	return dHdt
 
 def make_dSdt(H):
-	def dSdt(S, t0):
-	    return H[t0] * S
+	def dSdt(S, t):
+	    return get_value(H, t) * S
 	return dSdt
 
 def hubble_parameters():
-	V = dict(zip(t, scipy.integrate.odeint(dVdt, V0, t)))
+	V = RK4(dVdt, V0, start, stop+3.0/2.0*step, step/4.0)
 	dHdt = make_dHdt(V)
-	return euler(dHdt, A0, t), euler(dHdt, B0, t), euler(dHdt, C0, t)
+	return RK4(dHdt, A0, start, stop+step, step/2.0), RK4(dHdt, B0, start, stop+step, step/2.0), RK4(dHdt, C0, start, stop+step, step/2.0)
 
 def scale_factors():
 	Ha, Hb, Hc = hubble_parameters()
-	Ha = dict(zip(t, Ha))
-	Hb = dict(zip(t, Hb))
-	Hc = dict(zip(t, Hc))
 	dadt = make_dSdt(Ha)
 	dbdt = make_dSdt(Hb)
 	dcdt = make_dSdt(Hc)
-	return euler(dadt, a0, t), euler(dbdt, b0, t), euler(dcdt, c0, t)
+	return RK4(dadt, a0, start, stop, step), RK4(dbdt, b0, start, stop, step), RK4(dcdt, c0, start, stop, step)
 
 def plot_hubble_parameters():
 	Ha, Hb, Hc = hubble_parameters()
-	pplot.scatter(t, np.float64(Ha), c = 'r')
-	pplot.scatter(t, np.float64(Hb), c = 'g')
-	pplot.scatter(t, np.float64(Hc), c = 'b')
+	pplot.scatter(t, np.float64(values_at_times(Ha, t)), c = 'r')
+	pplot.scatter(t, np.float64(values_at_times(Hb, t)), c = 'g')
+	pplot.scatter(t, np.float64(values_at_times(Hc, t)), c = 'b')
 	pplot.title('Hubble Parameters')
 	pplot.show()
 
 def plot_scale_factors():
 	a, b, c = scale_factors()
-	pplot.scatter(t, np.float64(a), c = 'r')
-	pplot.scatter(t, np.float64(b), c = 'g')
-	pplot.scatter(t, np.float64(c), c = 'b')
+	pplot.scatter(t, np.float64(values_at_times(a, t)), c = 'r')
+	pplot.scatter(t, np.float64(values_at_times(b, t)), c = 'g')
+	pplot.scatter(t, np.float64(values_at_times(c, t)), c = 'b')
 	pplot.title('Scale Factors')
 	pplot.show()
 
-def euler(dfdt, f0, t):
-    vals = [f0]
-    for n,t0 in enumerate(t[:-1]):
-        vals.append(vals[-1]+dfdt(vals[-1], t0)*(t[n+1]-t0))
-    return vals
+def RK4(dfdt, f0, start, stop, step):
+	f = {start: f0}
+	t = start
+	val = f0
+	while (t <= stop):
+		k1 = dfdt(val, t)
+		k2 = dfdt(val + step/2.0*k1, t + step/2.0)
+		k3 = dfdt(val + step/2.0*k2, t + step/2.0)
+		k4 = dfdt(val + step*k3, t + step)
+		t = t + step
+		val = val + step/6.0*(k1 + 2.0*k2 + 2.0*k3 + k4)
+		set_value(f, t, val)
+	return f
+
+def set_value(f, t, v):
+	f[round(t, 8)] = v
+
+def get_value(f, t):
+	return f[round(t, 8)]
+
+def values_at_times(v, t):
+	values = []
+	for time in t:
+		values.append(get_value(v, time))
+	return values
 
 plot_hubble_parameters()
 plot_scale_factors()
