@@ -15,9 +15,6 @@ a0 = 1.0
 b0 = 1.0
 c0 = 1.0
 
-#Initial volume
-V0 = 1
-
 #Farctional energy-densities of the universe
 omega = {'m': 0.5, 'r': 0.5, 'v': 0}
 
@@ -26,6 +23,7 @@ t = np.linspace(0, 3, 100)
 
 I0 = A0*B0+A0*C0+B0*C0
 H0 = A0+B0+C0
+V0 = a0*b0*c0
 c = V0**2*(H0**2-3*I0)
 
 def dVdt(V, t0):
