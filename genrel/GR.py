@@ -1,6 +1,6 @@
 """
 genrel package for GR calculations
-David Clark, Kai Smith, David Cyncynates
+David Clark, Kai Smith
 Case Western Reserve University
 2014
 """
@@ -227,7 +227,7 @@ if __name__ == "__main__":
 
     w = sp.Symbol('w')
     rho = sp.Function('rho')(t)
-    p = sp.Function('p')(t)#w*rho
+    p = w*rho
 
     #FRW metric
     frw_metric, frw_metric_key = np.diag([-1, a**2/(1-k*r**2), a**2*r**2,a**2*r**2*sp.sin(theta)**2]), [t, r, theta, phi]
@@ -248,7 +248,9 @@ if __name__ == "__main__":
     
     einstein = raise_one_index(einstein_tensor_from_scratch(bc_metric, bc_metric_key), bc_metric)
     print('Bianchi Spacetime Einstein Equations:')
-    rprint(einstein_equations(einstein, np.diag([-rho, p, p, p])))
+    ein_eq = einstein_equations(einstein, np.diag([-rho, p, p, p]))
+    rprint(ein_eq)
+    rprint(sp.simplify(sum(ein_eq)))
     print('Conservation Equation for Bianchi Spacetime:')
     rprint(conservation_equations(bc_metric, bc_metric_key, np.diag([-rho, p, p, p])))
     

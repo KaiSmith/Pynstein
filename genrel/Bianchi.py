@@ -1,3 +1,9 @@
+"""
+Numerically evolves a Bianchi Class I universe given initial conditions.
+David Clark, Kai Smith
+Case Western Reserve University
+2014
+"""
 from GR import *
 from math import *
 import numpy as np
