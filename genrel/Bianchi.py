@@ -25,7 +25,7 @@ def make_dSdt(H):
 	return dSdt
 
 def hubble_parameters():
-	V = RK4(dVdt, V0, start, stop+step, step/4.0)
+	V = RK4(dVdt, V0, start, stop+1.5*step, step/4.0)
 	dHdt = make_dHdt(V)
 	return RK4(dHdt, A0, start, stop+step, step/2.0), RK4(dHdt, B0, start, stop+step, step/2.0), RK4(dHdt, C0, start, stop+step, step/2.0)
 
@@ -95,7 +95,7 @@ if __name__ == '__main__':
     #Times at which to calculate functions
     start = 0
     stop = 3
-    step = 0.1
+    step = .05
 
     I0 = A0*B0+A0*C0+B0*C0
     H0 = A0+B0+C0
