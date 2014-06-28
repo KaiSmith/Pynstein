@@ -11,22 +11,22 @@ import sympy as sp
 import matplotlib.pyplot as pplot
 
 #Initial directional Hubble constants
-A0 = 0.5
-B0 = 1.0
-C0 = 1.5
+A0 = 2.0
+B0 = 2.2
+C0 = 1.8
 
 #Initial directional scale factors
-a0 = 1.0
-b0 = 1.0
-c0 = 1.0
+a0 = 1
+b0 = 1
+c0 = 1
 
 #Farctional energy-densities of the universe
-omega = {'m': 0, 'r': 1.0, 'v': 0}
+omega = {'m': 0, 'r': 1, 'v': 0}
 
 #Times at which to calculate functions
 start = 0
-stop = 3
-step = 0.1
+stop = 0.2
+step = 0.01
 
 I0 = A0*B0+A0*C0+B0*C0
 H0 = A0+B0+C0
@@ -35,13 +35,12 @@ c = V0**2*(H0**2-3*I0)
 t = np.linspace(start, stop, (stop-start)/step+1)
 
 def dVdt(V, t):
-    return sqrt(3*I0*(omega['m']*V0*V+omega['r']*V0**sp.Rational(4, 3)*V**sp.Rational(2, 3)+omega['v']*V**2)+c)
+	return sqrt(3*I0*(omega['m']*V0*V+omega['r']*V0**sp.Rational(4, 3)*V**sp.Rational(2, 3)+omega['v']*V**2)+c)
 
 def make_dHdt(V):
 	def dHdt(H, t):
 		V_t = get_value(V, t)
-		return (I0/2*(omega['m']*V0+sp.Rational(2, 3)*omega['r']*V0**sp.Rational(4, 3)*V_t**sp.Rational(-1, 3)+2*omega['v']*V_t)
-			-H*dVdt(V_t,t))/V_t
+		return (I0/2*(omega['m']*V0+sp.Rational(2, 3)*omega['r']*V0**sp.Rational(4, 3)*V_t**sp.Rational(-1, 3)+2*omega['v']*V_t)-H*dVdt(V_t,t))/V_t
 	return dHdt
 
 def make_dSdt(H):
@@ -50,12 +49,11 @@ def make_dSdt(H):
 	return dSdt
 
 def hubble_parameters():
-	V = RK4(dVdt, V0, start, stop+3.0/2.0*step, step/4.0)
+	V = RK4(dVdt, V0, start, stop+step, step/4.0)
 	dHdt = make_dHdt(V)
 	return RK4(dHdt, A0, start, stop+step, step/2.0), RK4(dHdt, B0, start, stop+step, step/2.0), RK4(dHdt, C0, start, stop+step, step/2.0)
 
-def scale_factors():
-	Ha, Hb, Hc = hubble_parameters()
+def scale_factors(Ha, Hb, Hc):
 	dadt = make_dSdt(Ha)
 	dbdt = make_dSdt(Hb)
 	dcdt = make_dSdt(Hc)
@@ -68,9 +66,10 @@ def plot_hubble_parameters():
 	pplot.scatter(t, np.float64(values_at_times(Hc, t)), c = 'b')
 	pplot.title('Hubble Parameters')
 	pplot.show()
+	return Ha, Hb, Hc
 
-def plot_scale_factors():
-	a, b, c = scale_factors()
+def plot_scale_factors(Ha, Hb, Hc):
+	a, b, c = scale_factors(Ha, Hb, Hc)
 	pplot.scatter(t, np.float64(values_at_times(a, t)), c = 'r')
 	pplot.scatter(t, np.float64(values_at_times(b, t)), c = 'g')
 	pplot.scatter(t, np.float64(values_at_times(c, t)), c = 'b')
@@ -103,5 +102,5 @@ def values_at_times(v, t):
 		values.append(get_value(v, time))
 	return values
 
-plot_hubble_parameters()
-plot_scale_factors()
+Ha, Hb, Hc = plot_hubble_parameters()
+plot_scale_factors(Ha, Hb, Hc)
