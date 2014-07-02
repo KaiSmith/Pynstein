@@ -224,10 +224,20 @@ if __name__ == "__main__":
     a = sp.Function('a')(t)
     b = sp.Function('b')(t)
     c = sp.Function('c')(t)
+    a0 = sp.Symbol('a0')
+    b0 = sp.Symbol('b0')
+    c0 = sp.Symbol('c0')
 
-    w = sp.Symbol('w')
+    w = sp.Rational(1, 3)#sp.Symbol('w')
     rho = sp.Function('rho')(t)
     p = w*rho
+    G = sp.Symbol('G')
+
+    I0 = sp.Symbol('I0')
+    omega0 = sp.Symbol('Omega0')
+    rho0 = sp.Symbol('rho0')#I0*omega0/(8 * sp.pi * G)
+    p0 = sp.Symbol('p0')#w*rho0
+
 
     #FRW metric
     frw_metric, frw_metric_key = np.diag([-1, a**2/(1-k*r**2), a**2*r**2,a**2*r**2*sp.sin(theta)**2]), [t, r, theta, phi]
@@ -246,13 +256,16 @@ if __name__ == "__main__":
                 k*((frw_c_metric_key[i]*frw_c_metric_key[j])/(1-k*(x**2+y**2+z**2))))
     #rprint(frw_c_metric)
     
+    T = np.diag([-rho0*(a0*b0*c0/(a*b*c))**sp.Rational(4, 3), p0*a0**2*b0*c0/(a**2*b*c),
+        p0*a0*b0**2*c0/(a*b**2*c), p0*a0*b0*c0**2/(a*b*c**2)])
     einstein = raise_one_index(einstein_tensor_from_scratch(bc_metric, bc_metric_key), bc_metric)
     print('Bianchi Spacetime Einstein Equations:')
-    ein_eq = einstein_equations(einstein, np.diag([-rho, p, p, p]))
+    ein_eq = einstein_equations(einstein, T)
+    #rprint(einstein[1,1]*einstein[2,2]*einstein[3,3]/einstein[0,0]**3-(p0/rho0)**3)
     rprint(ein_eq)
-    rprint(sp.simplify(sum(ein_eq)))
+    #print(sp.simplify(-1*ein_eq[3] + sum(ein_eq[:3])))
     print('Conservation Equation for Bianchi Spacetime:')
-    rprint(conservation_equations(bc_metric, bc_metric_key, np.diag([-rho, p, p, p])))
+    mprint(conservation_equations(bc_metric, bc_metric_key, T))
     
     #einstein = raise_one_index(einstein_tensor_from_scratch(frw_c_metric, bc_metric_key), frw_c_metric, showprogress = True)
     #print('FRW Spacetime Einstein Equations:')
