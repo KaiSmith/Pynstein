@@ -90,9 +90,9 @@ def values_at_times(v, t):
 
 if __name__ == '__main__':
     #Initial directional Hubble constants
-    A0 = -20
-    B0 = 0
-    C0 = 20
+    A0 = 1.0
+    B0 = 1.0
+    C0 = 1.0
 
     #Initial directional scale factors
     a0 = 1.0
@@ -100,12 +100,12 @@ if __name__ == '__main__':
     c0 = 1.0
 
     #Farctional energy-densities of the universe
-    omega = {'m': 0, 'r': 1.0, 'v': 0}
+    omega = {'m': 1.0, 'r': 0, 'v': 0}
 
     #Times at which to calculate functions
     start = 0
-    stop = 0.45
-    step = .01
+    stop = 100
+    step = 2
 
     I0 = A0*B0+A0*C0+B0*C0
     H0 = A0+B0+C0
