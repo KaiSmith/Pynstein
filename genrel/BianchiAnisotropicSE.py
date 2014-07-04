@@ -27,14 +27,11 @@ p3 = a0*b0*c0**2*p0
 t = np.linspace(0, 10, 50)
 
 def dydt(y, t):
-	x1, x2, x3, x4, x5, x6 = y
-	x1_dot = x2
-	x2_dot = ((x1*x4*x6)/(x3*x5) - (x2*x6)/x5 - (x2*x4)/x3 + p3/(x3*x5**2)+ p2/(x3**2*x5) - p1/(x1*x3*x5))/2.0
-	x3_dot = x4
-	x4_dot = ((x3*x2*x6)/(x1*x5) - (x4*x2)/x1 - (x4*x6)/x5 + p3/(x1*x5**2) + p1/(x1**2*x5) - p2/(x1*x3*x5))/2.0
-	x5_dot = x6
-	x6_dot = ((x5*x2*x4)/(x1*x3) - (x6*x2)/x1 - (x6*x4)/x3 + p1/(x1**2*x3) + p2/(x1*x3**2) - p3/(x1*x3*x5))/2.0
-	return [x1_dot, x2_dot, x3_dot, x4_dot, x5_dot, x6_dot]
+	a, a_dot, b, b_dot, c, c_dot = y
+	a_dot_dot = ((a*b_dot*c_dot)/(b*c) - (a_dot*c_dot)/c - (a_dot*b_dot)/b + p3/(b*c**2)+ p2/(b**2*c) - p1/(a*b*c))/2.0
+	b_dot_dot = ((b*a_dot*c_dot)/(a*c) - (b_dot*a_dot)/a - (b_dot*c_dot)/c + p3/(a*c**2) + p1/(a**2*c) - p2/(a*b*c))/2.0
+	c_dot_dot = ((c*a_dot*b_dot)/(a*b) - (c_dot*a_dot)/a - (c_dot*b_dot)/b + p1/(a**2*b) + p2/(a*b**2) - p3/(a*b*c))/2.0
+	return [a_dot, a_dot_dot, b_dot, b_dot_dot, c_dot, c_dot_dot]
 
 
 def plot_stuff():
@@ -50,7 +47,7 @@ def plot_stuff():
 	C = [value[5]/value[4] for value in y]
 
 	V = [value[0]*value[2]*value[4] for value in y]
-	V_dot = [value[1]*value[2]*value[4] + value[0]*value[3]*value[4] + value[0]*value[2]*value[5] for value in y]
+	#V_dot = [value[1]*value[2]*value[4] + value[0]*value[3]*value[4] + value[0]*value[2]*value[5] for value in y]
 
 	pplot.scatter(t, np.float64(A), c = 'r')
 	pplot.scatter(t, np.float64(B), c = 'g')
