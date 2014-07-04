@@ -91,21 +91,21 @@ def values_at_times(v, t):
 if __name__ == '__main__':
     #Initial directional Hubble constants
     A0 = 1.0
-    B0 = 1.0
-    C0 = 1.0
+    B0 = 2.0
+    C0 = 3.0
 
     #Initial directional scale factors
-    a0 = 1.0
-    b0 = 1.0
-    c0 = 1.0
+    a0 = 0
+    b0 = 0
+    c0 = 0
 
     #Farctional energy-densities of the universe
-    omega = {'m': 1.0, 'r': 0, 'v': 0}
+    omega = {'m': 0.5, 'r': 0.5, 'v': 0}
 
     #Times at which to calculate functions
     start = 0
-    stop = 100
-    step = 2
+    stop = 2
+    step = 0.05
 
     I0 = A0*B0+A0*C0+B0*C0
     H0 = A0+B0+C0
@@ -115,3 +115,4 @@ if __name__ == '__main__':
 
     Ha, Hb, Hc = plot_hubble_parameters()
     plot_scale_factors(Ha, Hb, Hc)
+    
