@@ -18,7 +18,15 @@ a_dot0 = 1.0
 b_dot0 = 1.5
 c_dot0 = 2.0
 
-p0 = 1
+A0 = a_dot0/a0
+B0 = b_dot0/b0
+C0 = c_dot0/c0
+
+I0 = A0*B0+B0*C0+A0*C0
+omega0 = 1
+H0 = A0+B0+C0
+
+p0 = I0*omega0/3*H0/(a_dot0+b_dot0+c_dot0)
 
 p1 = a0**2*b0*c0*p0
 p2 = a0*b0**2*c0*p0
@@ -35,28 +43,28 @@ def dydt(y, t):
 
 
 def plot_stuff():
-	y0 = [a0, a_dot0, b0, b_dot0, c0, c_dot0]
-	y = scipy.integrate.odeint(dydt, y0, t)
+    y0 = [a0, a_dot0, b0, b_dot0, c0, c_dot0]
+    y = scipy.integrate.odeint(dydt, y0, t)
 
-	a = [value[0] for value in y]
-	b = [value[2] for value in y]
-	c = [value[4] for value in y]
+    a = [value[0] for value in y]
+    b = [value[2] for value in y]
+    c = [value[4] for value in y]
 
-	A = [value[1]/value[0] for value in y]
-	B = [value[3]/value[2] for value in y]
-	C = [value[5]/value[4] for value in y]
+    A = [value[1]/value[0] for value in y]
+    B = [value[3]/value[2] for value in y]
+    C = [value[5]/value[4] for value in y]
+    
+    V = [value[0]*value[2]*value[4] for value in y]
+    #V_dot = [value[1]*value[2]*value[4] + value[0]*value[3]*value[4] + value[0]*value[2]*value[5] for value in y]
 
-	V = [value[0]*value[2]*value[4] for value in y]
-	#V_dot = [value[1]*value[2]*value[4] + value[0]*value[3]*value[4] + value[0]*value[2]*value[5] for value in y]
+    pplot.scatter(t, np.float64(A), c = 'r')
+    pplot.scatter(t, np.float64(B), c = 'g')
+    pplot.scatter(t, np.float64(C), c = 'b')
+    pplot.show()
 
-	pplot.scatter(t, np.float64(A), c = 'r')
-	pplot.scatter(t, np.float64(B), c = 'g')
-	pplot.scatter(t, np.float64(C), c = 'b')
-	pplot.show()
-
-	pplot.scatter(t, np.float64(a), c = 'r')
-	pplot.scatter(t, np.float64(b), c = 'g')
-	pplot.scatter(t, np.float64(c), c = 'b')
-	pplot.show()
+    pplot.scatter(t, np.float64(a), c = 'r')
+    pplot.scatter(t, np.float64(b), c = 'g')
+    pplot.scatter(t, np.float64(c), c = 'b')
+    pplot.show()
 
 plot_stuff()
