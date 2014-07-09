@@ -265,7 +265,7 @@ if __name__ == "__main__":
     rprint(ein_eq)
     #print(sp.simplify(-1*ein_eq[3] + sum(ein_eq[:3])))
     print('Conservation Equation for Bianchi Spacetime:')
-    mprint(conservation_equations(bc_metric, bc_metric_key, T))
+    rprint(conservation_equations(bc_metric, bc_metric_key, T))
     
     #einstein = raise_one_index(einstein_tensor_from_scratch(frw_c_metric, bc_metric_key), frw_c_metric, showprogress = True)
     #print('FRW Spacetime Einstein Equations:')

@@ -25,20 +25,17 @@ C0 = c_dot0/c0
 I0 = A0*B0+B0*C0+A0*C0
 omega0 = 1
 H0 = A0+B0+C0
+V0 = a0*b0*c0
 
 p0 = I0*omega0/3*H0/(a_dot0+b_dot0+c_dot0)
-
-p1 = a0**2*b0*c0*p0
-p2 = a0*b0**2*c0*p0
-p3 = a0*b0*c0**2*p0
 
 t = np.linspace(0, 10, 50)
 
 def dydt(y, t):
 	a, a_dot, b, b_dot, c, c_dot = y
-	a_dot_dot = ((a*b_dot*c_dot)/(b*c) - (a_dot*c_dot)/c - (a_dot*b_dot)/b + p3/(b*c**2)+ p2/(b**2*c) - p1/(a*b*c))/2.0
-	b_dot_dot = ((b*a_dot*c_dot)/(a*c) - (b_dot*a_dot)/a - (b_dot*c_dot)/c + p3/(a*c**2) + p1/(a**2*c) - p2/(a*b*c))/2.0
-	c_dot_dot = ((c*a_dot*b_dot)/(a*b) - (c_dot*a_dot)/a - (c_dot*b_dot)/b + p1/(a**2*b) + p2/(a*b**2) - p3/(a*b*c))/2.0
+	a_dot_dot = (-p0*V0/(a*b*c)*(b0/b+c0/c-a0/a)-a_dot*c_dot/(a*c)-a_dot*b_dot/(a*c)+b_dot*c_dot/(b*c))*a/2.0
+	b_dot_dot = (-p0*V0/(a*b*c)*(-b0/b+c0/c+a0/a)+a_dot*c_dot/(a*c)-a_dot*b_dot/(a*c)-b_dot*c_dot/(b*c))*b/2.0
+	c_dot_dot = (-p0*V0/(a*b*c)*(b0/b-c0/c-a0/a)-a_dot*c_dot/(a*c)+a_dot*b_dot/(a*c)-b_dot*c_dot/(b*c))*c/2.0
 	return [a_dot, a_dot_dot, b_dot, b_dot_dot, c_dot, c_dot_dot]
 
 
