@@ -1,4 +1,5 @@
 #Pynstein
+![alt tag](https://raw.githubusercontent.com/KaiSmith/Pynstein/master/pynstein_logo.png)
 
 ##Introduction
 ###Why Pynstein
