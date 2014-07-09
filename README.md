@@ -5,14 +5,16 @@
 Because we can
 
 ###Features
-+Calculates Einstein equations for any given metric
-+etc.
+
+* Calculates Einstein equations for any given metric
+
+* etc.
 
 ##Dependencies
-+numpy
-+scipy
-+sympy
-+matplotlib
+* numpy
+* scipy
+* sympy
+* matplotlib
 
 ##Example Usage
 Here is some example code in which we try to do stuff:
@@ -22,4 +24,5 @@ Here is some example code in which we try to do stuff:
 
 ##Authors
 Kai Smith (kai.smith@case.edu)
+
 David Clark (davidlark@berkeley.edu)
