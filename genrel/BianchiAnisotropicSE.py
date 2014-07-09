@@ -10,13 +10,13 @@ import sympy as sp
 import scipy.integrate
 import matplotlib.pyplot as pplot
 
-a0 = 0.5
+a0 = 100.0
 b0 = 1.0
-c0 = 1.5
+c0 = 1.0
 
 a_dot0 = 1.0
-b_dot0 = 1.5
-c_dot0 = 2.0
+b_dot0 = 10.0
+c_dot0 = 20.0
 
 A0 = a_dot0/a0
 B0 = b_dot0/b0
@@ -38,7 +38,6 @@ def dydt(y, t):
 	c_dot_dot = (-p0*V0/(a*b*c)*(b0/b-c0/c-a0/a)-a_dot*c_dot/(a*c)+a_dot*b_dot/(a*c)-b_dot*c_dot/(b*c))*c/2.0
 	return [a_dot, a_dot_dot, b_dot, b_dot_dot, c_dot, c_dot_dot]
 
-
 def plot_stuff():
     y0 = [a0, a_dot0, b0, b_dot0, c0, c_dot0]
     y = scipy.integrate.odeint(dydt, y0, t)
@@ -54,14 +53,59 @@ def plot_stuff():
     V = [value[0]*value[2]*value[4] for value in y]
     #V_dot = [value[1]*value[2]*value[4] + value[0]*value[3]*value[4] + value[0]*value[2]*value[5] for value in y]
 
-    pplot.scatter(t, np.float64(A), c = 'r')
-    pplot.scatter(t, np.float64(B), c = 'g')
-    pplot.scatter(t, np.float64(C), c = 'b')
-    pplot.show()
+	"""
+	num = [a0/value[0] - b0/value[2] for value in y]
+	denom = [((a0*b0*c0)/(value[0]*value[2]*value[4]))**(1.0/3.0) - c0/value[4] for value in y]
+	frac = [num[i]/denom[i] for i in range(len(num))]
+	"""
 
-    pplot.scatter(t, np.float64(a), c = 'r')
-    pplot.scatter(t, np.float64(b), c = 'g')
-    pplot.scatter(t, np.float64(c), c = 'b')
-    pplot.show()
+	g_prime = [p0*(a0/value[0] - b0/value[2]) for value in y]
+	f_prime = [rho0*((a0*b0*c0)/(value[0]*value[2]*value[4]))**(1.0/3.0) - p0*(c0/value[4]) for value in y]
+	ratio = [g_prime[i]/f_prime[i] for i in range(0, len(g_prime))]
+	limit = [(1 - ratio[i])/(1 + ratio[i]) for i in range(len(ratio))]
+	print(limit)
+
+	A_over_B = [(value[1]/value[0])/(value[3]/value[2]) for value in y]
+	print(A_over_B)
+
+	ratio_of_ratios = [limit[i]/A_over_B[i] for i in range(len(A_over_B))]
+	print(ratio_of_ratios)
+
+	"""
+	step_size = t[1] - t[0]
+	f = [0]
+	for i in range(1, len(f_inside_integral)):
+		f.append(f[i-1] + f_inside_integral[i]*step_size)
+	g = [0]
+	for i in range(1, len(g_inside_integral)):
+		g.append(g[i-1] + g_inside_integral[i]*step_size)
+
+	g_over_f = [g[i]/f[i] for i in range(1, len(f))]
+
+	pplot.scatter(t[1:], np.float64(g_over_f), c = 'r')
+	pplot.show()
+
+	A_over_B = [(value[1]/value[0])/(value[3]/value[2]) for value in y]
+	print(A_over_B)
+	"""
+
+	"""
+	pplot.scatter(t, np.float64(A), c = 'r')
+	pplot.scatter(t, np.float64(B), c = 'g')
+	pplot.scatter(t, np.float64(C), c = 'b')
+	pplot.show()
+
+	pplot.scatter(t, np.float64(a), c = 'r')
+	pplot.scatter(t, np.float64(b), c = 'g')
+	pplot.scatter(t, np.float64(c), c = 'b')
+	pplot.show()
+	"""
+
+	"""
+
+	print(frac)
+	pplot.scatter(t, np.float64(frac), c = 'r')
+	pplot.show()
+	"""
 
 plot_stuff()
