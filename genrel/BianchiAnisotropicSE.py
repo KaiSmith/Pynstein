@@ -90,5 +90,5 @@ def print_long_term_ratios():
 	print('C/A: ' + str(C_over_A[-1]))
 	print('B/A: ' + str(B_over_A[-1]))
 
-#plot_evolution()
+plot_evolution()
 print_long_term_ratios()
