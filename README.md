@@ -1,13 +1,13 @@
 ![alt tag](https://raw.githubusercontent.com/KaiSmith/Pynstein/master/pynstein_logo.png)
 
 ##What is Pynstein?
-Pynstein is a python library that allows the user to easily make General Relativity calculations. 
+Pynstein is a python library that allows the user to easily do General Relativity calculations. 
 
 ##Features
 
-* Given a metric Pynstein can calculate:
+* Given a metric, Pynstein can calculate:
   * Inerse metrics
-  * Cristoffel Symbols
+  * Christoffel Symbols
   * Reimann Curvature Tensor
   * Ricci Curvature Tensor
   * Conservation equation
@@ -24,7 +24,7 @@ Pynstein is a python library that allows the user to easily make General Relativ
 ##Example Usage
 Here is some example code in which we try to do stuff:
 ```
-#Nothing to see here
+#Nothing to see here yet
 ```
 
 ##Authors
