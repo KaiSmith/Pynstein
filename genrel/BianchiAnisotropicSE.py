@@ -15,8 +15,8 @@ b0 = 1.0
 c0 = 1.0
 
 a_dot0 = 1.0
-b_dot0 = 1.0
-c_dot0 = 1.0
+b_dot0 = 5.0
+c_dot0 = 100000.0
 
 A0 = a_dot0/a0
 B0 = b_dot0/b0
@@ -24,7 +24,7 @@ C0 = c_dot0/c0
 
 omega0 = 1
 
-t = np.linspace(0, 1000000000, 1000)
+t = np.linspace(0, 2, 50)
 
 I0 = A0*B0+B0*C0+A0*C0
 H0 = A0+B0+C0
@@ -39,7 +39,7 @@ def dydt(y, t):
 	c_dot_dot = (c/2.0)*((chi0/(a*b*c))*(-a0/a - b0/b + c0/c) + (a_dot*b_dot)/(a*b) - (a_dot*c_dot)/(a*c) - (b_dot*c_dot)/(b*c))
 	return [a_dot, a_dot_dot, b_dot, b_dot_dot, c_dot, c_dot_dot]
 
-def plot_stuff():
+def plot_evolution():
 	y0 = [a0, a_dot0, b0, b_dot0, c0, c_dot0]
 	y = scipy.integrate.odeint(dydt, y0, t)
 
@@ -51,71 +51,44 @@ def plot_stuff():
 	B = [value[3]/value[2] for value in y]
 	C = [value[5]/value[4] for value in y]
 
-	V = [value[0]*value[2]*value[4] for value in y]
-	#V_dot = [value[1]*value[2]*value[4] + value[0]*value[3]*value[4] + value[0]*value[2]*value[5] for value in y]
-
-	"""
-	g_prime = [p0*(a0/value[0] - b0/value[2]) for value in y]
-	f_prime = [rho0*((a0*b0*c0)/(value[0]*value[2]*value[4]))**(1.0/3.0) - p0*(c0/value[4]) for value in y]
-	ratio = [g_prime[i]/f_prime[i] for i in range(0, len(g_prime))]
-	limit = [(1 - ratio[i])/(1 + ratio[i]) for i in range(len(ratio))]
-	print(limit[-1])
-	"""
-
-	"""
-	A_over_B = [(value[1]/value[0])/(value[3]/value[2]) for value in y]
-	print(A_over_B)
-	"""
-
-	"""
-	step_size = t[1] - t[0]
-	f = [0]
-	for i in range(1, len(f_prime)):
-		f.append(f[i-1] + f_prime[i]*step_size)
-	g = [0]
-	for i in range(1, len(g_prime)):
-		g.append(g[i-1] + g_prime[i]*step_size)
-	num = [f[i] + g[i] for i in range(len(f))]
-	denom = [f[i] - g[i] for i in range(len(f))]
-	ratio = [num[i]/denom[i] for i in range(1, len(f))]
-
-	pplot.scatter(t[1:], np.float64(ratio), c = 'r')
-	pplot.show()
-	"""
-
-	"""
-	g_over_f = [g[i]/f[i] for i in range(1, len(f))]
-
-	pplot.scatter(t[1:], np.float64(g_over_f), c = 'r')
-	pplot.show()
-	"""
-
-	"""
 	B_over_C = [A[i]/B[i] for i in range(len(t))]
 	C_over_A = [C[i]/A[i] for i in range(len(t))]
 	B_over_A = [B[i]/A[i] for i in range(len(t))]
 	
-	pplot.scatter(t, A, c = 'r')
-	pplot.scatter(t, B, c = 'g')
-	pplot.scatter(t, C, c = 'b')
-	pplot.show()
-
 	pplot.scatter(t, a, c = 'r')
 	pplot.scatter(t, b, c = 'g')
 	pplot.scatter(t, c, c = 'b')
+	pplot.title('Scale Factors')
 	pplot.show()
-	"""
 
-	gamma0 = H0/(3.0*(a_dot0+b_dot0+c_dot0))
-	f_prime = [(V0/V[i])**(1.0/3.0) - gamma0*(c0/c[i]) for i in range(len(t))]
-	g_prime = [gamma0*(a0/a[i] - b0/b[i]) for i in range(len(t))]
-	ratio = [g_prime[i] - f_prime[i] for i in range(len(t))]
-	print(ratio[-1])
-
-	"""
-	print(frac)
-	pplot.scatter(t, np.float64(frac), c = 'r')
+	pplot.scatter(t, A, c = 'r')
+	pplot.scatter(t, B, c = 'g')
+	pplot.scatter(t, C, c = 'b')
+	pplot.title('Hubble Parameters')
 	pplot.show()
-	"""
 
-plot_stuff()
+	pplot.scatter(t, B_over_C, c = 'r')
+	pplot.scatter(t, C_over_A, c = 'g')
+	pplot.scatter(t, B_over_A, c = 'b')
+	pplot.title('Hubble Parameter Ratios')
+	pplot.show()
+
+def print_long_term_ratios():
+	t = np.linspace(0, 1000000000, 10000000)
+	y0 = [a0, a_dot0, b0, b_dot0, c0, c_dot0]
+	y = scipy.integrate.odeint(dydt, y0, t)
+
+	A = [value[1]/value[0] for value in y]
+	B = [value[3]/value[2] for value in y]
+	C = [value[5]/value[4] for value in y]
+
+	B_over_C = [A[i]/B[i] for i in range(len(t))]
+	C_over_A = [C[i]/A[i] for i in range(len(t))]
+	B_over_A = [B[i]/A[i] for i in range(len(t))]
+
+	print('B/C: ' + str(B_over_C[-1]))
+	print('C/A: ' + str(C_over_A[-1]))
+	print('B/A: ' + str(B_over_A[-1]))
+
+#plot_evolution()
+print_long_term_ratios()
