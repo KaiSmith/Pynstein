@@ -221,12 +221,16 @@ if __name__ == "__main__":
     y = sp.Symbol('y')
     z = sp.Symbol('z')
     k = sp.Symbol('k')
-    a = sp.Function('a')(t)
-    b = sp.Function('b')(t)
-    c = sp.Function('c')(t)
     a0 = sp.Symbol('a0')
     b0 = sp.Symbol('b0')
     c0 = sp.Symbol('c0')
+    f = sp.Function('f')(t)
+    g1 = sp.Function('p')(t)
+    g2 = sp.Function('q')(t)
+    g3 = sp.Function('r')(t)
+    a = a0*f+g1
+    b = b0*f+g2
+    c = c0*f+g3
 
     w = sp.Rational(1, 3)#sp.Symbol('w')
     rho = sp.Function('rho')(t)
@@ -258,7 +262,7 @@ if __name__ == "__main__":
     
     T = np.diag([-rho0*(a0*b0*c0/(a*b*c))**sp.Rational(4, 3), p0*a0**2*b0*c0/(a**2*b*c),
         p0*a0*b0**2*c0/(a*b**2*c), p0*a0*b0*c0**2/(a*b*c**2)])
-    einstein = raise_one_index(einstein_tensor_from_scratch(bc_metric, bc_metric_key), bc_metric)
+    einstein = raise_one_index(einstein_tensor_from_scratch(bc_metric, bc_metric_key, showprogress = True), bc_metric)
     print('Bianchi Spacetime Einstein Equations:')
     ein_eq = einstein_equations(einstein, T)
     #rprint(einstein[1,1]*einstein[2,2]*einstein[3,3]/einstein[0,0]**3-(p0/rho0)**3)
