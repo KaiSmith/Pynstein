@@ -16,7 +16,7 @@ c0 = 1.0
 
 a_dot0 = 1.0
 b_dot0 = 5.0
-c_dot0 = 100000.0
+c_dot0 = 30.0
 
 A0 = a_dot0/a0
 B0 = b_dot0/b0
@@ -47,6 +47,11 @@ def plot_evolution():
 	b = [value[2] for value in y]
 	c = [value[4] for value in y]
 
+	V = [a[i]*b[i]*c[i] for i in range(len(t))]
+	pplot.scatter(t, c, c = 'r')
+	pplot.title('Volume')
+	pplot.show()
+
 	A = [value[1]/value[0] for value in y]
 	B = [value[3]/value[2] for value in y]
 	C = [value[5]/value[4] for value in y]
@@ -74,7 +79,7 @@ def plot_evolution():
 	pplot.show()
 
 def print_long_term_ratios():
-	t = np.linspace(0, 1000000000, 10000000)
+	t = np.linspace(0, 1000000, 100000)
 	y0 = [a0, a_dot0, b0, b_dot0, c0, c_dot0]
 	y = scipy.integrate.odeint(dydt, y0, t)
 
@@ -90,5 +95,5 @@ def print_long_term_ratios():
 	print('C/A: ' + str(C_over_A[-1]))
 	print('B/A: ' + str(B_over_A[-1]))
 
-#plot_evolution()
+plot_evolution()
 print_long_term_ratios()
