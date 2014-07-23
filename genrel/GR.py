@@ -60,7 +60,8 @@ def ricci_scalar(ricci_t, metric):
     for alpha in range(4):
         for beta in range(4):
             scalar += inverse[alpha][beta] * ricci_t[alpha][beta]
-    return sp.cancel(scalar)
+    scalar = sp.cancel(scalar)
+    return scalar
 
 #returns the rank 2 Einstein tensor
 #both indices are lower
@@ -81,7 +82,7 @@ def einstein_tensor_from_scratch(metric, metric_key, showprogress = False):
     ricci_t = ricci_tensor(reimann_t)
     if showprogress: print("Ricci Tensor calculated")
     ricci_s = ricci_scalar(ricci_t, metric)
-    if showprogress: print("Ricci Scalae calculated")
+    if showprogress: print("Ricci Scalar calculated")
     return einstein_tensor(ricci_t, ricci_s, metric)
 
 #returns expressions which, when set equal to zero, give the Einstein equations
@@ -221,17 +222,51 @@ if __name__ == "__main__":
     y = sp.Symbol('y')
     z = sp.Symbol('z')
     k = sp.Symbol('k')
+    pi = sp.pi
+    #k = 0
+
+    a = sp.Function('a')(t)
+    b = sp.Function('b')(t)
+    c = sp.Function('c')(t)
+
     a0 = sp.Symbol('a0')
     b0 = sp.Symbol('b0')
     c0 = sp.Symbol('c0')
-    f = sp.Function('f')(t)
-    g1 = sp.Function('p')(t)
-    g2 = sp.Function('q')(t)
-    g3 = sp.Function('r')(t)
-    a = a0*f+g1
-    b = b0*f+g2
-    c = c0*f+g3
 
+    """
+    f = sp.Function('f')(t)
+    f0 = sp.Symbol('f_0')
+    #f = sp.sqrt(t)
+    #f0 = 0
+
+    fa = sp.Function('f_1')(t)
+    fb = sp.Function('f_2')(t)
+    fc = sp.Function('f_3')(t)
+    fa0 = sp.Symbol('f_10')
+    fb0 = sp.Symbol('f_20')
+    fc0 = sp.Symbol('f_30')
+
+    p = sp.Function('p')(t)
+    p0 = sp.Symbol('p_0')
+    fa = p
+    fb = p
+    fc = p
+    fa0 = p0
+    fb0 = p0
+    fc0 = p0
+
+    ca = sp.Symbol('c_1')
+    cb = sp.Symbol('c_2')
+    cc = sp.Symbol('c_3')
+
+    a = ca*f + fa
+    b = cb*f + fb
+    c = cc*f + fc
+    a0 = ca*f0 + fa0
+    b0 = cb*f0 + fb0
+    c0 = cc*f0 + fc0
+
+    """
     w = sp.Rational(1, 3)#sp.Symbol('w')
     rho = sp.Function('rho')(t)
     p = w*rho
@@ -260,11 +295,15 @@ if __name__ == "__main__":
                 k*((frw_c_metric_key[i]*frw_c_metric_key[j])/(1-k*(x**2+y**2+z**2))))
     #rprint(frw_c_metric)
     
-    T = np.diag([-rho0*(a0*b0*c0/(a*b*c))**sp.Rational(4, 3), p0*a0**2*b0*c0/(a**2*b*c),
-        p0*a0*b0**2*c0/(a*b**2*c), p0*a0*b0*c0**2/(a*b*c**2)])
+    T = np.diag([-rho0*(a0*b0*c0/(a*b*c))**sp.Rational(4, 3), p0*a0**2*b0*c0/(a**2*b*c) + k/(8*pi*G*a**2), p0*a0*b0**2*c0/(a*b**2*c) + k/(8*pi*G*b**2), p0*a0*b0*c0**2/(a*b*c**2) + k/(8*pi*G*c**2)])
+    #T = np.diag([-rho0*(a0/a)**4.0, (rho0*(a0/a)**4.0)/3.0, (rho0*(a0/a)**4.0)/3.0, (rho0*(a0/a)**4.0)/3.0])
+    #T = np.diag([0, 0, 0, 0])
     einstein = raise_one_index(einstein_tensor_from_scratch(bc_metric, bc_metric_key, showprogress = True), bc_metric)
+    #rprint(einstein)
     print('Bianchi Spacetime Einstein Equations:')
+
     ein_eq = einstein_equations(einstein, T)
+
     #rprint(einstein[1,1]*einstein[2,2]*einstein[3,3]/einstein[0,0]**3-(p0/rho0)**3)
     rprint(ein_eq)
     #print(sp.simplify(-1*ein_eq[3] + sum(ein_eq[:3])))
