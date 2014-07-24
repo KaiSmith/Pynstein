@@ -100,11 +100,11 @@ if __name__ == '__main__':
     c0 = 0
 
     #Farctional energy-densities of the universe
-    omega = {'m': 0.5, 'r': 0.5, 'v': 0}
+    omega = {'m': 0, 'r': 1, 'v': 0}
 
     #Times at which to calculate functions
     start = 0
-    stop = 2
+    stop = 1
     step = 0.05
 
     I0 = A0*B0+A0*C0+B0*C0

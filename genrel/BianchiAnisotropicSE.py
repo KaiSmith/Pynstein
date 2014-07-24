@@ -11,9 +11,9 @@ import scipy.integrate
 import matplotlib.pyplot as pplot
 from math import pi
 
-a0 = 1.0
-b0 = 1.0
-c0 = 1.0
+a0 = 10.0
+b0 = 10.0
+c0 = 10.0
 
 a_dot0 = 1.0
 b_dot0 = 1.0
@@ -28,9 +28,9 @@ omega0 = 1
 #Open  -1
 #Flat   0
 #Closed 1
-k = 1
+k = 0
 
-t = np.linspace(0, 100, 1000)
+t = np.linspace(0, 1, 100)
 
 I0 = A0*B0+B0*C0+A0*C0
 H0 = A0+B0+C0
@@ -54,7 +54,7 @@ def dydt(y, t):
 	return [a_dot, a_dot_dot, b_dot, b_dot_dot, c_dot, c_dot_dot]
 
 def plot_evolution():
-	t = np.linspace(1, 5, 100)
+	t = np.linspace(0, 1, 100)
 	y0 = [a0, a_dot0, b0, b_dot0, c0, c_dot0]
 	y = scipy.integrate.odeint(dydt, y0, t)
 

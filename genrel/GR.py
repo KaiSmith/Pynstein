@@ -295,11 +295,12 @@ if __name__ == "__main__":
                 k*((frw_c_metric_key[i]*frw_c_metric_key[j])/(1-k*(x**2+y**2+z**2))))
     #rprint(frw_c_metric)
     
-    T = np.diag([-rho0*(a0*b0*c0/(a*b*c))**sp.Rational(4, 3), p0*a0**2*b0*c0/(a**2*b*c) + k/(8*pi*G*a**2), p0*a0*b0**2*c0/(a*b**2*c) + k/(8*pi*G*b**2), p0*a0*b0*c0**2/(a*b*c**2) + k/(8*pi*G*c**2)])
+    T = np.diag([-rho0*(a0*b0*c0/(a*b*c))**sp.Rational(4, 3) - (3.0*k)/((a*b*c)**sp.Rational(2, 3)*8*pi*G) , p0*a0**2*b0*c0/(a**2*b*c) - k/(a**2*8*pi*G), p0*a0*b0**2*c0/(a*b**2*c) - k/(b**2*8*pi*G), p0*a0*b0*c0**2/(a*b*c**2) - k/(c**2*8*pi*G)])
     #T = np.diag([-rho0*(a0/a)**4.0, (rho0*(a0/a)**4.0)/3.0, (rho0*(a0/a)**4.0)/3.0, (rho0*(a0/a)**4.0)/3.0])
     #T = np.diag([0, 0, 0, 0])
     einstein = raise_one_index(einstein_tensor_from_scratch(bc_metric, bc_metric_key, showprogress = True), bc_metric)
     #rprint(einstein)
+
     print('Bianchi Spacetime Einstein Equations:')
 
     ein_eq = einstein_equations(einstein, T)
