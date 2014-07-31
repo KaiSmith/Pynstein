@@ -144,6 +144,11 @@ def kronecker_delta(a, b):
         return 1
     return 0
 
+def perturbations(metric, pert):
+    h_inv
+    dChristoffel
+    dRicci
+
 #prints a tensor (or a sympy scalar) in a readable form
 def rprint(obj, position = []):
     if type(obj) != type(np.array([])):
@@ -223,7 +228,6 @@ if __name__ == "__main__":
     z = sp.Symbol('z')
     k = sp.Symbol('k')
     pi = sp.pi
-    #k = 0
 
     a = sp.Function('a')(t)
     b = sp.Function('b')(t)
@@ -233,44 +237,10 @@ if __name__ == "__main__":
     b0 = sp.Symbol('b0')
     c0 = sp.Symbol('c0')
 
-    """
-    f = sp.Function('f')(t)
-    f0 = sp.Symbol('f_0')
-    #f = sp.sqrt(t)
-    #f0 = 0
-
-    fa = sp.Function('f_1')(t)
-    fb = sp.Function('f_2')(t)
-    fc = sp.Function('f_3')(t)
-    fa0 = sp.Symbol('f_10')
-    fb0 = sp.Symbol('f_20')
-    fc0 = sp.Symbol('f_30')
-
-    p = sp.Function('p')(t)
-    p0 = sp.Symbol('p_0')
-    fa = p
-    fb = p
-    fc = p
-    fa0 = p0
-    fb0 = p0
-    fc0 = p0
-
-    ca = sp.Symbol('c_1')
-    cb = sp.Symbol('c_2')
-    cc = sp.Symbol('c_3')
-
-    a = ca*f + fa
-    b = cb*f + fb
-    c = cc*f + fc
-    a0 = ca*f0 + fa0
-    b0 = cb*f0 + fb0
-    c0 = cc*f0 + fc0
-
-    """
-    w = sp.Rational(1, 3)#sp.Symbol('w')
-    rho = sp.Function('rho')(t)
-    p = w*rho
-    G = sp.Symbol('G')
+    #w = sp.Rational(1, 3)#sp.Symbol('w')
+    #rho = sp.Function('rho')(t)
+    #p = w*rho
+    #G = sp.Symbol('G')
 
     I0 = sp.Symbol('I0')
     omega0 = sp.Symbol('Omega0')
@@ -282,34 +252,44 @@ if __name__ == "__main__":
     frw_metric, frw_metric_key = np.diag([-1, a**2/(1-k*r**2), a**2*r**2,a**2*r**2*sp.sin(theta)**2]), [t, r, theta, phi]
     #Bianchi metric (currently flat, does not assume isotropy)
     bc_metric, bc_metric_key = np.diag([-1, a**2, b**2, c**2]), [t, x, y, z]
+    #Bianchi with cylindrical curvarute
+    bcurve, bcurve_key = np.diag([-1, a**2/(1-k*r**2), a**2*r**2, b**2]), [t, r, theta, z]
     #Generalized Schwartzchild metric
     A, B = sp.Function('A')(r), sp.Function('B')(r)
     sc_metric, sc_metric_ky = np.diag([B, A, r**2, r**2*sp.sin(theta)**2]), [t, r, theta, phi]
 
-    frw_c_metric_key = [t, x, y, z]
-    frw_c_metric = zerotensor(2)
-    frw_c_metric[0][0] = -1
-    for i in range(1, 4):
-        for j in range(1, 4):
-            frw_c_metric[i][j] = a**2*(kronecker_delta(i, j) + 
-                k*((frw_c_metric_key[i]*frw_c_metric_key[j])/(1-k*(x**2+y**2+z**2))))
-    #rprint(frw_c_metric)
+    bcurve2_key = [t, x, y, z]
+    bcurve2_sf = [1, a, b, c]
+    bcurve2 = zerotensor(2)
+    bcurve2[0][0] = -1
+    for i in range(1, 3):
+        for j in range(1, 3):
+            bcurve2[i][j] = bcurve2_sf[i]*bcurve2_sf[j]*(kronecker_delta(i, j) + 
+                k*((bcurve2_key[i]*bcurve2_key[j])/(1-k*(x**2+y**2+z**2))))
+    bcurve2[3][3] = c**2*(kronecker_delta(3, 3) + 
+        k*((bcurve2_key[3]*bcurve2_key[3])/(1-k*(x**2+y**2+z**2))))
+    #rprint(bcurve2)
     
-    T = np.diag([-rho0*(a0*b0*c0/(a*b*c))**sp.Rational(4, 3) - (3.0*k)/((a*b*c)**sp.Rational(2, 3)*8*pi*G) , p0*a0**2*b0*c0/(a**2*b*c) - k/(a**2*8*pi*G), p0*a0*b0**2*c0/(a*b**2*c) - k/(b**2*8*pi*G), p0*a0*b0*c0**2/(a*b*c**2) - k/(c**2*8*pi*G)])
+    #T = np.diag([-rho0*(a0*b0*c0/(a*b*c))**sp.Rational(4, 3) - (3.0*k)/((a*b*c)**sp.Rational(2, 3)*8*pi*G) , p0*a0**2*b0*c0/(a**2*b*c) - k/(a**2*8*pi*G), p0*a0*b0**2*c0/(a*b**2*c) - k/(b**2*8*pi*G), p0*a0*b0*c0**2/(a*b*c**2) - k/(c**2*8*pi*G)])
     #T = np.diag([-rho0*(a0/a)**4.0, (rho0*(a0/a)**4.0)/3.0, (rho0*(a0/a)**4.0)/3.0, (rho0*(a0/a)**4.0)/3.0])
     #T = np.diag([0, 0, 0, 0])
-    einstein = raise_one_index(einstein_tensor_from_scratch(bc_metric, bc_metric_key, showprogress = True), bc_metric)
+    rho = sp.Symbol('rho')
+    p = sp.Symbol('p')
+    p1 = sp.Symbol('p1')
+    p2 = sp.Symbol('p2')
+    T = np.diag([-rho, p, p, p])
+    einstein = raise_one_index(einstein_tensor_from_scratch(frw_metric, frw_metric_key, showprogress = True), frw_metric)
     #rprint(einstein)
 
     print('Bianchi Spacetime Einstein Equations:')
 
-    ein_eq = einstein_equations(einstein, T)
+    #ein_eq = einstein_equations(einstein, T)
 
     #rprint(einstein[1,1]*einstein[2,2]*einstein[3,3]/einstein[0,0]**3-(p0/rho0)**3)
-    rprint(ein_eq)
+    rprint(einstein)
     #print(sp.simplify(-1*ein_eq[3] + sum(ein_eq[:3])))
     print('Conservation Equation for Bianchi Spacetime:')
-    rprint(conservation_equations(bc_metric, bc_metric_key, T))
+    rprint(conservation_equations(frw_metric, frw_metric_key, T))
     
     #einstein = raise_one_index(einstein_tensor_from_scratch(frw_c_metric, bc_metric_key), frw_c_metric, showprogress = True)
     #print('FRW Spacetime Einstein Equations:')
