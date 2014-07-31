@@ -145,9 +145,27 @@ def kronecker_delta(a, b):
     return 0
 
 def perturbations(metric, pert):
-    h_inv
-    dChristoffel
-    dRicci
+    print('hey')
+
+#First index corresponds to upper index
+def perturbed_christoffel_symbols(metric, metric_key, perturbations, christoffel_symbols=None):
+    perturbed_symbols = tensor(3)
+    symbols = christoffel_symbols(metric, metric_key) if not christoffel_symbols else christoffel_symbols
+    inverse_metric = inverse_metric(metric)
+    for mu in range(4):
+        for nu in range(4):
+            for lambda in range(4):
+                total = 0
+                for sigma in range(4):
+                    for rho in range(4):
+                        total += sp.Rational(1,2)*inverse_metric[mu][rho]*(-2*perturbations[rho][sigma]*symbols[sigma][nu][lambda]
+                            +sp.diff(perturbations[rho][nu], metric_key[lambda])
+                            +sp.diff(perturbations[rho][lambda], metric_key[nu])
+                            -sp.diff(perturbations[lambda][nu], metric_key[rho]))
+                symbols[mu][nu][lambda] = sp.simplify(total)
+    return perturbed_symbols
+
+
 
 #prints a tensor (or a sympy scalar) in a readable form
 def rprint(obj, position = []):
