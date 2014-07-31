@@ -49,8 +49,8 @@ class BianchiRadiationUniverse(AnisotropicUniverse):
 		return [a_dot, a_dot_dot, b_dot, b_dot_dot, c_dot, c_dot_dot]
 
 if __name__ == "__main__":
-   universe = BianchiRadiationUniverse('c')
-   universe.evolve([1.0, 1.0, 1.0, 2.0, 1.0, 3.0], numpy.linspace(0, 5, 100))
+   universe = BianchiRadiationUniverse('f')
+   universe.evolve([1.0, 1.0, 1.0, 1.0, 0, 0], numpy.linspace(0, 100, 100))
    universe.plot_variables(['sf'])
 
 

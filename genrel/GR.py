@@ -175,7 +175,7 @@ def lprint(obj, position = []):
             else:
                 lprint(entry, position + [n])
 
-#Prints a sympy expression or expressions in a Mathematica ready form
+"""#Prints a sympy expression or expressions in a Mathematica ready form
 def mprint(obj, position = []):
     if type(obj) != type(np.array([])):
         if obj != 0:
@@ -186,7 +186,35 @@ def mprint(obj, position = []):
                     print(str(position + [n]) + ": ")
                     print(mathematicize(entry))
             else:
-                mprint(entry, position + [n])
+                mprint(entry, position + [n])"""
+
+#Prints a sympy expression or expressions in a Mathematica (Matrix) ready form
+def mprint(obj, position = [], eol = True):
+    if type(obj) != type(np.array([])):
+        if obj != 0:
+            print(mathematicize(obj))
+    else:
+        print('{')
+        for n, entry in enumerate(obj):
+            if type(entry) != type(np.array([])): #and entry != 0:
+                    #print(str(position + [n]) + ": ")
+                    print(mathematicize(entry))
+                    if n != len(obj)-1:
+                        print(',')        
+
+            else:
+                mprint(entry, eol = len(obj)-1) #, position + [n])
+                print('}')
+                if n != len(obj)-1:
+                    print(',')  
+        if eol == True:  
+            print('}')
+
+                            
+            
+
+            
+
 
 #Turns a single expression into Mathematica readable form
 def mathematicize(exp):
@@ -258,19 +286,30 @@ if __name__ == "__main__":
     A, B = sp.Function('A')(r), sp.Function('B')(r)
     sc_metric, sc_metric_ky = np.diag([B, A, r**2, r**2*sp.sin(theta)**2]), [t, r, theta, phi]
 
-    bcurve2_key = [t, x, y, z]
-    bcurve2_sf = [1, a, b, c]
-    bcurve2 = zerotensor(2)
-    bcurve2[0][0] = -1
-    for i in range(1, 3):
-        for j in range(1, 3):
-            bcurve2[i][j] = bcurve2_sf[i]*bcurve2_sf[j]*(kronecker_delta(i, j) + 
-                k*((bcurve2_key[i]*bcurve2_key[j])/(1-k*(x**2+y**2+z**2))))
-    bcurve2[3][3] = c**2*(kronecker_delta(3, 3) + 
-        k*((bcurve2_key[3]*bcurve2_key[3])/(1-k*(x**2+y**2+z**2))))
-    #rprint(bcurve2)
+    #FRW cartesian metric
+    frw_c_metric_key = [t, x, y, z]
+    frw_c_metric = zerotensor(2)
+    frw_c_metric[0][0] = -1
+    for i in range(1, 4):
+        for j in range(1, 4):
+            frw_c_metric[i][j] = a**2*(kronecker_delta(i, j) + 
+                k*((frw_c_metric_key[i]*frw_c_metric_key[j])/(1-k*(x**2+y**2+z**2))))
+    #rprint(frw_c_metric)
     
-    #T = np.diag([-rho0*(a0*b0*c0/(a*b*c))**sp.Rational(4, 3) - (3.0*k)/((a*b*c)**sp.Rational(2, 3)*8*pi*G) , p0*a0**2*b0*c0/(a**2*b*c) - k/(a**2*8*pi*G), p0*a0*b0**2*c0/(a*b**2*c) - k/(b**2*8*pi*G), p0*a0*b0*c0**2/(a*b*c**2) - k/(c**2*8*pi*G)])
+    #FRW cartesian metric generalized to Bianchi
+    frw_c_metric_key = [t, x, y, z]
+    frw_c_scale_factors = [-1,a,b,c]
+    frw_c_metric = zerotensor(2)
+    frw_c_metric[0][0] = -1
+    for i in range(1, 4):
+        for j in range(1, 4):
+            frw_c_metric[i][j] = frw_c_scale_factors[i]*frw_c_scale_factors[j]*(kronecker_delta(i, j) + 
+                k*((frw_c_metric_key[i]*frw_c_metric_key[j])/(1-k*(x**2+y**2+z**2))))
+    mprint(frw_c_metric)
+
+
+
+    T = np.diag([-rho0*(a0*b0*c0/(a*b*c))**sp.Rational(4, 3) - (3.0*k)/((a*b*c)**sp.Rational(2, 3)*8*pi*G) , p0*a0**2*b0*c0/(a**2*b*c) - k/(a**2*8*pi*G), p0*a0*b0**2*c0/(a*b**2*c) - k/(b**2*8*pi*G), p0*a0*b0*c0**2/(a*b*c**2) - k/(c**2*8*pi*G)])
     #T = np.diag([-rho0*(a0/a)**4.0, (rho0*(a0/a)**4.0)/3.0, (rho0*(a0/a)**4.0)/3.0, (rho0*(a0/a)**4.0)/3.0])
     #T = np.diag([0, 0, 0, 0])
     rho = sp.Symbol('rho')
@@ -295,4 +334,4 @@ if __name__ == "__main__":
     #print('FRW Spacetime Einstein Equations:')
     #rprint(einstein_equations(einstein, np.diag([-rho, p, p, p])))
     #print('FRW Equation for Bianchi Spacetime:')
-    #rprint(conservation_equations(frw_c_metric, frw_c_metric_key, np.diag([-rho, p, p, p])))
+    #rprint(conservation_equations(frw_c_metric, frw_c_metric_key, np.diag([-rho, p, p, p]))) 
