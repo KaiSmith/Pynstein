@@ -144,28 +144,56 @@ def kronecker_delta(a, b):
         return 1
     return 0
 
-def perturbations(metric, pert):
-    print('hey')
+def inverse_perturbations(metric, pert):
+    h_inv = tensor(2)
+    g_inv = inverse_metric(metric)
+    for u in range(4):
+        for v in range(4):
+            total = 0
+            for rho in range(4):
+                for sigma in range(4):
+                    total -= g_inv[u][rho]*g_inv[v][sigma]*pert[rho][sigma]
+            h_inv[u][v] = sp.simplify(total)
+    return h_inv
 
 #First index corresponds to upper index
-def perturbed_christoffel_symbols(metric, metric_key, perturbations, christoffel_symbols=None):
+def perturbed_christoffel_symbols(metric, metric_key, perturbations, christoffel=None):
     perturbed_symbols = tensor(3)
-    symbols = christoffel_symbols(metric, metric_key) if not christoffel_symbols else christoffel_symbols
-    inverse_metric = inverse_metric(metric)
+    symbols = christoffel_symbols(metric, metric_key) if christoffel == None else christoffel
+    inverse = inverse_metric(metric)
     for mu in range(4):
         for nu in range(4):
-            for lambda in range(4):
+            for lamb in range(4):
                 total = 0
                 for sigma in range(4):
                     for rho in range(4):
-                        total += sp.Rational(1,2)*inverse_metric[mu][rho]*(-2*perturbations[rho][sigma]*symbols[sigma][nu][lambda]
-                            +sp.diff(perturbations[rho][nu], metric_key[lambda])
-                            +sp.diff(perturbations[rho][lambda], metric_key[nu])
-                            -sp.diff(perturbations[lambda][nu], metric_key[rho]))
-                symbols[mu][nu][lambda] = sp.simplify(total)
+                        total += sp.Rational(1,2)*inverse[mu][rho]*(-2*perturbations[rho][sigma]*symbols[sigma][nu][lamb]
+                            +sp.diff(perturbations[rho][nu], metric_key[lamb])
+                            +sp.diff(perturbations[rho][lamb], metric_key[nu])
+                            -sp.diff(perturbations[lamb][nu], metric_key[rho]))
+                perturbed_symbols[mu][nu][lamb] = sp.simplify(total)
     return perturbed_symbols
 
-
+def perturbed_ricci_tensor(metric, metric_key, pert, chris = None, dchris = None):
+    dRicci = tensor(2)
+    if chris == None:
+        chris = christoffel_symbols(metric, metric_key)
+    if dchris == None:
+        dchris = perturbed_christoffel_symbols(metric, metric_key, pert, chris)
+    for u in range(4):
+        for k in range(4):
+            total = 0
+            for l in range(4):
+                for v in range(4):
+                    for e in range(4):
+                        total += dchris[e][u][v]*chris[v][k][e]
+                        total += dchris[v][k][e]*chris[e][u][v]
+                        total -= dchris[e][u][k]*chris[v][v][e]
+                        total -= dchris[v][v][e]*chris[e][u][k]
+                total += sp.diff(dchris[l][u][l], metric_key[k])
+                total -= sp.diff(dchris[l][u][k], metric_key[l])
+            dRicci[u][k] = total
+    return dRicci
 
 #prints a tensor (or a sympy scalar) in a readable form
 def rprint(obj, position = []):
@@ -227,12 +255,6 @@ def mprint(obj, position = [], eol = True):
                     print(',')  
         if eol == True:  
             print('}')
-
-                            
-            
-
-            
-
 
 #Turns a single expression into Mathematica readable form
 def mathematicize(exp):
@@ -297,7 +319,7 @@ if __name__ == "__main__":
     #FRW metric
     frw_metric, frw_metric_key = np.diag([-1, a**2/(1-k*r**2), a**2*r**2,a**2*r**2*sp.sin(theta)**2]), [t, r, theta, phi]
     #Bianchi metric (currently flat, does not assume isotropy)
-    bc_metric, bc_metric_key = np.diag([-1, a**2, b**2, c**2]), [t, x, y, z]
+    bc_metric, bc_metric_key = np.diag([-1, a**2, a**2, a**2]), [t, x, y, z]
     #Bianchi with cylindrical curvarute
     bcurve, bcurve_key = np.diag([-1, a**2/(1-k*r**2), a**2*r**2, b**2]), [t, r, theta, z]
     #Generalized Schwartzchild metric
@@ -315,38 +337,43 @@ if __name__ == "__main__":
     #rprint(frw_c_metric)
     
     #FRW cartesian metric generalized to Bianchi
-    frw_c_metric_key = [t, x, y, z]
-    frw_c_scale_factors = [-1,a,b,c]
-    frw_c_metric = zerotensor(2)
-    frw_c_metric[0][0] = -1
+    b_c_metric_key = [t, x, y, z]
+    b_c_scale_factors = [-1,a,b,c]
+    b_c_metric = zerotensor(2)
+    b_c_metric[0][0] = -1
     for i in range(1, 4):
         for j in range(1, 4):
-            frw_c_metric[i][j] = frw_c_scale_factors[i]*frw_c_scale_factors[j]*(kronecker_delta(i, j) + 
-                k*((frw_c_metric_key[i]*frw_c_metric_key[j])/(1-k*(x**2+y**2+z**2))))
-    mprint(frw_c_metric)
+            b_c_metric[i][j] = b_c_scale_factors[i]*b_c_scale_factors[j]*(kronecker_delta(i, j) + 
+                k*((b_c_metric_key[i]*b_c_metric_key[j])/(1-k*(x**2+y**2+z**2))))
+    #mprint(b_c_metric)
 
+    perturbations = tensor(2)
+    for r in range(4):
+        for c in range(4):
+            perturbations[r][c] = sp.Function('h'+str(r)+str(c))(t, x, y, z)
 
+    rprint(perturbed_ricci_tensor(bc_metric, bc_metric_key, perturbations))
 
-    T = np.diag([-rho0*(a0*b0*c0/(a*b*c))**sp.Rational(4, 3) - (3.0*k)/((a*b*c)**sp.Rational(2, 3)*8*pi*G) , p0*a0**2*b0*c0/(a**2*b*c) - k/(a**2*8*pi*G), p0*a0*b0**2*c0/(a*b**2*c) - k/(b**2*8*pi*G), p0*a0*b0*c0**2/(a*b*c**2) - k/(c**2*8*pi*G)])
+    #T = np.diag([-rho0*(a0*b0*c0/(a*b*c))**sp.Rational(4, 3) - (3.0*k)/((a*b*c)**sp.Rational(2, 3)*8*pi*G) , p0*a0**2*b0*c0/(a**2*b*c) - k/(a**2*8*pi*G), p0*a0*b0**2*c0/(a*b**2*c) - k/(b**2*8*pi*G), p0*a0*b0*c0**2/(a*b*c**2) - k/(c**2*8*pi*G)])
     #T = np.diag([-rho0*(a0/a)**4.0, (rho0*(a0/a)**4.0)/3.0, (rho0*(a0/a)**4.0)/3.0, (rho0*(a0/a)**4.0)/3.0])
     #T = np.diag([0, 0, 0, 0])
-    rho = sp.Symbol('rho')
-    p = sp.Symbol('p')
-    p1 = sp.Symbol('p1')
-    p2 = sp.Symbol('p2')
-    T = np.diag([-rho, p, p, p])
-    einstein = raise_one_index(einstein_tensor_from_scratch(frw_metric, frw_metric_key, showprogress = True), frw_metric)
+    #rho = sp.Symbol('rho')
+    #p = sp.Symbol('p')
+    #p1 = sp.Symbol('p1')
+    #p2 = sp.Symbol('p2')
+    #T = np.diag([-rho, p, p, p])
+    #einstein = raise_one_index(einstein_tensor_from_scratch(frw_metric, frw_metric_key, showprogress = True), frw_metric)
     #rprint(einstein)
 
-    print('Bianchi Spacetime Einstein Equations:')
+    #print('Bianchi Spacetime Einstein Equations:')
 
     #ein_eq = einstein_equations(einstein, T)
 
     #rprint(einstein[1,1]*einstein[2,2]*einstein[3,3]/einstein[0,0]**3-(p0/rho0)**3)
-    rprint(einstein)
+    #rprint(einstein)
     #print(sp.simplify(-1*ein_eq[3] + sum(ein_eq[:3])))
-    print('Conservation Equation for Bianchi Spacetime:')
-    rprint(conservation_equations(frw_metric, frw_metric_key, T))
+    #print('Conservation Equation for Bianchi Spacetime:')
+    #rprint(conservation_equations(frw_metric, frw_metric_key, T))
     
     #einstein = raise_one_index(einstein_tensor_from_scratch(frw_c_metric, bc_metric_key), frw_c_metric, showprogress = True)
     #print('FRW Spacetime Einstein Equations:')
