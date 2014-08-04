@@ -167,7 +167,8 @@ def perturbed_christoffel_symbols(metric, metric_key, perturbations, christoffel
                 total = 0
                 for sigma in range(4):
                     for rho in range(4):
-                        total += sp.Rational(1,2)*inverse[mu][rho]*(-2*perturbations[rho][sigma]*symbols[sigma][nu][lamb]
+                        total += sp.Rational(1,2)*inverse[mu][rho]*(
+                            -2*perturbations[rho][sigma]*symbols[sigma][nu][lamb]
                             +sp.diff(perturbations[rho][nu], metric_key[lamb])
                             +sp.diff(perturbations[rho][lamb], metric_key[nu])
                             -sp.diff(perturbations[lamb][nu], metric_key[rho]))
