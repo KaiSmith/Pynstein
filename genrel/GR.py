@@ -167,10 +167,11 @@ def perturbed_christoffel_symbols(metric, metric_key, perturbations, christoffel
                 total = 0
                 for rho in range(4):
                     for sigma in range(4):
-                        total += sp.Rational(1,2)*inverse[mu][rho]*(-2*perturbations[rho][sigma]*symbols[sigma][nu][lamb])
-                    total += sp.Rational(1,2)*inverse[mu][rho]*(sp.diff(perturbations[rho][nu], metric_key[lamb])
+                        total -= inverse[mu][rho]*perturbations[rho][sigma]*symbols[sigma][nu][lamb]
+                    total += sp.Rational(1,2)*inverse[mu][rho]*(
+                        sp.diff(perturbations[rho][nu], metric_key[lamb])
                         +sp.diff(perturbations[rho][lamb], metric_key[nu])
-                        -sp.diff(perturbations[lamb][nu], metric_key[rho])))
+                        -sp.diff(perturbations[lamb][nu], metric_key[rho]))
                 perturbed_symbols[mu][nu][lamb] = sp.simplify(total)
     return perturbed_symbols
 
@@ -184,15 +185,15 @@ def perturbed_ricci_tensor(metric, metric_key, pert, chris = None, dchris = None
         for k in range(4):
             total = 0
             for l in range(4):
-                for v in range(4):
-                    for e in range(4):
-                        total += dchris[e][u][v]*chris[v][k][e]
-                        total += dchris[v][k][e]*chris[e][u][v]
-                        total -= dchris[e][u][k]*chris[v][v][e]
-                        total -= dchris[v][v][e]*chris[e][u][k]
                 total += sp.diff(dchris[l][u][l], metric_key[k])
                 total -= sp.diff(dchris[l][u][k], metric_key[l])
-            dRicci[u][k] = total
+            for v in range(4):
+                for e in range(4):
+                    total += dchris[e][u][v]*chris[v][k][e]
+                    total += dchris[v][k][e]*chris[e][u][v]
+                    total -= dchris[e][u][k]*chris[v][v][e]
+                    total -= dchris[v][v][e]*chris[e][u][k]
+            dRicci[u][k] = sp.simplify(total)
     return dRicci
 
 #prints a tensor (or a sympy scalar) in a readable form
