@@ -117,7 +117,7 @@ def tensor(rank):
     return np.empty(shape, dtype = type(sp.Symbol('')))
 
 #returns a 4 x 4 x ... x 4 array of sympy symbols filled with zeros which represent a tensor
-def zerotensor(rank):
+def zero_tensor(rank):
     shape = [4 for i in range(rank)]
     return np.zeros(shape, dtype = type(sp.Symbol('')))
 
@@ -350,7 +350,7 @@ if __name__ == "__main__":
 
     #FRW cartesian metric
     frw_c_metric_key = [t, x, y, z]
-    frw_c_metric = zerotensor(2)
+    frw_c_metric = zero_tensor(2)
     frw_c_metric[0][0] = -1
     for i in range(1, 4):
         for j in range(1, 4):
@@ -361,7 +361,7 @@ if __name__ == "__main__":
     #FRW cartesian metric generalized to Bianchi
     b_c_metric_key = [t, x, y, z]
     b_c_scale_factors = [-1,a,b,c]
-    b_c_metric = zerotensor(2)
+    b_c_metric = zero_tensor(2)
     b_c_metric[0][0] = -1
     for i in range(1, 4):
         for j in range(1, 4):
