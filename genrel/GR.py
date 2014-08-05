@@ -353,6 +353,11 @@ if __name__ == "__main__":
         for c in range(4):
             perturbations[r][c] = sp.Function('h'+str(r)+str(c))(t, x, y, z)
 
+    T = tensor(2)
+        for r in range(4):
+            for c in range(4):
+                T[r][c] = sp.Function('T'+str(r)+str(c))(t, x, y, z)
+
     rprint(perturbed_ricci_tensor(bc_metric, bc_metric_key, perturbations))
 
     #T = np.diag([-rho0*(a0*b0*c0/(a*b*c))**sp.Rational(4, 3) - (3.0*k)/((a*b*c)**sp.Rational(2, 3)*8*pi*G) , p0*a0**2*b0*c0/(a**2*b*c) - k/(a**2*8*pi*G), p0*a0*b0**2*c0/(a*b**2*c) - k/(b**2*8*pi*G), p0*a0*b0*c0**2/(a*b*c**2) - k/(c**2*8*pi*G)])
