@@ -196,6 +196,27 @@ def perturbed_ricci_tensor(metric, metric_key, pert, chris = None, dchris = None
             dRicci[u][k] = sp.simplify(total)
     return dRicci
 
+def perturbed_source_tensor(metric, stress_energy, perturbed_stress_energy, perturbations):
+    perturbed_source = tensor(2)
+    stress_energy_trace = sum(stress_energy[i][i] for i in range(4))
+    perturbed_stress_energy_trace = sum(perturbed_stress_energy[i][i] for i in range(4))
+    for mu in range(4):
+        for nu in range(4):
+            perturbed_source[mu][nu] = perturbed_stress_energy[mu][nu]
+            -sp.Rational(1,2)*metric[mu][nu]*perturbed_stress_energy_trace
+            -sp.Rational(1,2)*perturbations[mu][nu]*stress_energy_trace
+    return sp.simplify(perturbed_source)
+
+def perturbed_einstein_equations(perturbed_ricci_tesor, perturbed_source_tesor):
+    equations = []
+    for mu in range(4):
+        for nu in range(4):
+            eq = sp.simplify(perturbed_ricci_tesor[mu][nu]
+                +8*sp.pi*sp.Symbol('G')*perturbed_source_tesor[mu][nu])
+            if eq != 0 and eq not in equations:
+                equations.append(eq)
+    return np.array(equations)
+
 #prints a tensor (or a sympy scalar) in a readable form
 def rprint(obj, position = []):
     if type(obj) != type(np.array([])):
@@ -353,7 +374,8 @@ if __name__ == "__main__":
         for c in range(4):
             perturbations[r][c] = sp.Function('h'+str(r)+str(c))(t, x, y, z)
 
-    rprint(perturbed_ricci_tensor(bc_metric, bc_metric_key, perturbations))
+    dRicci = perturbed_ricci_tensor(bc_metric, bc_metric_key, perturbations)
+    rprint(dRicci)
 
     #T = np.diag([-rho0*(a0*b0*c0/(a*b*c))**sp.Rational(4, 3) - (3.0*k)/((a*b*c)**sp.Rational(2, 3)*8*pi*G) , p0*a0**2*b0*c0/(a**2*b*c) - k/(a**2*8*pi*G), p0*a0*b0**2*c0/(a*b**2*c) - k/(b**2*8*pi*G), p0*a0*b0*c0**2/(a*b*c**2) - k/(c**2*8*pi*G)])
     #T = np.diag([-rho0*(a0/a)**4.0, (rho0*(a0/a)**4.0)/3.0, (rho0*(a0/a)**4.0)/3.0, (rho0*(a0/a)**4.0)/3.0])
