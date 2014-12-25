@@ -1,9 +1,7 @@
 ![alt tag](https://raw.githubusercontent.com/KaiSmith/Pynstein/master/pynstein_logo.png)
 
 ##What is Pynstein?
-Pynstein is a python library that allows the user to easily do General Relativity calculations.
-
-"It just feels right."
+Pynstein is a python library that allows the user to easily do general relativity calculations.
 
 ##Features
 
@@ -24,9 +22,26 @@ Pynstein is a python library that allows the user to easily do General Relativit
 * matplotlib
 
 ##Example Usage
-Here is some example code in which we try to do stuff:
-```
-#Nothing to see here yet
+```python
+#Define variables
+t = sp.Symbol('t')
+r = sp.Symbol('r')
+theta = sp.Symbol('theta')
+phi = sp.Symbol('phi')
+
+#Define rho and p functions
+w = sp.Symbol('w')
+rho = sp.Function('rho')(t)
+p = w*rho
+
+#Create FRW metric
+frw_metric, frw_metric_key = np.diag([-1, a**2/(1-k*r**2), a**2*r**2,a**2*r**2*sp.sin(theta)**2]), [t, r, theta, phi]
+
+#Generate Einstein tensor
+einstein = raise_one_index(einstein_tensor_from_scratch(frw_metric, frw_metric_key), frw_metric)
+
+#Generate the 2 distinct Einstein field equations
+ein_eq = einstein_equations(einstein, np.diag([-rho, p, p, p]))
 ```
 
 ##Authors
