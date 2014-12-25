@@ -35,10 +35,12 @@ rho = sp.Function('rho')(t)
 p = w*rho
 
 #Create FRW metric
-frw_metric, frw_metric_key = np.diag([-1, a**2/(1-k*r**2), a**2*r**2,a**2*r**2*sp.sin(theta)**2]), [t, r, theta, phi]
+frw_metric = np.diag([-1, a**2/(1-k*r**2), a**2*r**2,a**2*r**2*sp.sin(theta)**2])
+ frw_metric_key = [t, r, theta, phi]
 
 #Generate Einstein tensor
-einstein = raise_one_index(einstein_tensor_from_scratch(frw_metric, frw_metric_key), frw_metric)
+einstein = einstein_tensor_from_scratch(frw_metric, frw_metric_key)
+einstein = raise_one_index(einstein, frw_metric)
 
 #Generate the 2 distinct Einstein field equations
 ein_eq = einstein_equations(einstein, np.diag([-rho, p, p, p]))
